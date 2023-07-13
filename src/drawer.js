@@ -2,14 +2,17 @@ class Drawer {
   constructor(document, div, width, height) {
     this.canvas = document.createElement("canvas");
     this.canvas.id = "mainCan";
-    this.canvas.width = width;
-    this.canvas.height = height;
+    this.canvas.width = width * window.devicePixelRatio;
+    this.canvas.height = height * window.devicePixelRatio;
+    this.canvas.style.height = height + "px";
+    this.canvas.style.width = width + "px";
+
     div.appendChild(this.canvas);
 
     this.ctx = this.canvas.getContext("2d");
 
-    this.width = width;
-    this.height = height;
+    this.width = width * window.devicePixelRatio;
+    this.height = height * window.devicePixelRatio;
 
     this.obs = new Observer(0, 0, 120, 50.07, 14.12);
 
@@ -43,7 +46,7 @@ class Drawer {
       x /= canvas.width;
       y -= canvas.height / 2;
       y /= -canvas.height;
-      return [x, y];
+      return [x * window.devicePixelRatio, y * window.devicePixelRatio];
     };
 
     const getXYFromEvent = (event, canvas = this.canvas) => {
