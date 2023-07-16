@@ -25,6 +25,8 @@ class Drawer {
     [this.lastX, this.lastY] = [null, null];
     this.bindInput();
     this.draw();
+
+    this.constellationPole = [12.053442491471836, 89.30386569273892]; // this.obs.getConstellationPole();
   }
 
   round5(num) {

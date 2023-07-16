@@ -204,12 +204,16 @@ class Observer {
     return this.AltAzToXY(alt, az, true);
   }
 
-  AltAzToXY(alt, az, ignoreFov = false) {
-    const S = new Vector(
+  AltAzToVector(alt, az) {
+    return new Vector(
       Math.cos(alt) * Math.cos(az),
       Math.cos(alt) * Math.sin(az),
       Math.sin(alt)
     );
+  }
+
+  AltAzToXY(alt, az, ignoreFov = false) {
+    const S = this.AltAzToVector(alt, az);
     if (!ignoreFov && S.angleTo(this.O) >= this.fov * Math.sqrt(2) * 0.5) {
       return [null, null]; // The star lies outside of the FOV
     }
@@ -250,5 +254,34 @@ class Observer {
   CheckVisibility(RA, DEC) {
     const dist = this.CalculateDistanceRaDec(degToRad(RA * 15), degToRad(DEC));
     return dist <= this.fov * 0.5 * Math.SQRT2;
+  }
+
+  GetConstellationPole() {
+    const A = this.AltAzToVector(
+      ...this.RaDecToAltAz(13 + 4 / 60 + 23.3937 / 3600, 69.329361)
+    ); //13 04 23.3937| 69.3293610|UMI
+    const B = this.AltAzToVector(
+      ...this.RaDecToAltAz(14 + 2 / 60 + 36.1947 / 3600, 69.3991165)
+    ); //14 02 36.1947| 69.3991165|UMI
+    const C = this.AltAzToVector(
+      ...this.RaDecToAltAz(15 + 40 / 60 + 12.1512 / 3600, 69.6009445)
+    ); //15 40 12.1512| 69.6009445|UMI
+
+    // https://en.wikipedia.org/wiki/Circumcircle
+    const a = A.subtract(C);
+    const b = B.subtract(C);
+    const x1 = b.multiply(a.length() ** 2);
+    const x2 = a.multiply(b.length() ** 2);
+    const numerator = x1.subtract(x2).cross(a.cross(b));
+    const denominator = 2 * a.cross(b).length() ** 2;
+    const p = numerator.divide(denominator).add(C).unit();
+
+    const alt = Math.asin(p.z);
+    const az1 = Math.acos(p.x / Math.cos(alt));
+    const az2 = Math.asin(p.y / Math.cos(alt));
+    const az = az2 > 0 ? az1 : 2 * Math.PI - az1;
+
+    let [RA, DEC] = this.AltAzToRaDec(alt, az);
+    return [RadToDeg(RA) / 15, RadToDeg(DEC)]; //[ 12.053442491471836, 89.30386569273892 ]
   }
 }
