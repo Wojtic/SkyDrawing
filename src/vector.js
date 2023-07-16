@@ -74,6 +74,23 @@ Vector.prototype = {
     this.z = z;
     return this;
   },
+  pararelComponent: function (v) {
+    return v.multiply(this.dot(v) / v.dot(v));
+  },
+  orthogonalComponent: function (v) {
+    return this.subtract(this.pararelComponent(v));
+  },
+  rotateAround: function (v, angle) {
+    // https://math.stackexchange.com/questions/511370/how-to-rotate-one-vector-about-another
+    const w = v.cross(this.orthogonalComponent(v));
+    const x1 = Math.cos(angle) / this.orthogonalComponent(v).length();
+    const x2 = Math.sin(angle) / w.length();
+    const orthogonalRotated = this.orthogonalComponent(v)
+      .multiply(x1)
+      .add(w.multiply(x2))
+      .multiply(this.orthogonalComponent(v).length());
+    return orthogonalRotated.add(this.pararelComponent(v));
+  },
 };
 
 Vector.negative = function (a, b) {
