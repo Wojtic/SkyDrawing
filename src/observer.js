@@ -267,6 +267,69 @@ class Observer {
     return numerator.divide(denominator).add(C).unit();
   }
 
+  VectorToAltAz(v) {
+    const alt = Math.asin(v.z);
+    const az1 = Math.acos(v.x / Math.cos(alt));
+    const az2 = Math.asin(v.y / Math.cos(alt));
+    const az = az2 > 0 ? az1 : 2 * Math.PI - az1;
+    return [alt, az];
+  }
+
+  InterpolateOnCircleCenter(
+    startAlt,
+    startAz,
+    endAlt,
+    endAz,
+    centerAlt,
+    centerAz
+  ) {
+    const start = this.AltAzToVector(startAlt, startAz);
+    const end = this.AltAzToVector(endAlt, endAz);
+    const center = this.AltAzToVector(centerAlt, centerAz);
+    const angle = start
+      .orthogonalComponent(center)
+      .angleTo(end.orthogonalComponent(center));
+    const steps = angle * 60;
+    const angleIncr = angle / steps;
+    let stepsAltAz = [[startAlt, startAz]];
+    const sign =
+      start.rotateAround(center, angle).subtract(end).length() <
+      start.rotateAround(center, -angle).subtract(end).length()
+        ? 1
+        : -1; // I don't like this, really inefficent
+    for (let i = 1; i < steps; i++) {
+      stepsAltAz.push(
+        this.VectorToAltAz(start.rotateAround(center, angleIncr * i * sign))
+      );
+    }
+    stepsAltAz.push([endAlt, endAz]);
+    return stepsAltAz;
+  }
+
+  InterpolateOnCircle3Points(
+    startAlt,
+    startAz,
+    endAlt,
+    endAz,
+    thirdAlt,
+    thirdAz,
+    steps
+  ) {
+    const center = this.GetUnitCenterCircumcircle(
+      this.AltAzToVector(startAlt, startAz),
+      this.AltAzToVector(endAlt, endAz),
+      this.AltAzToVector(thirdAlt, thirdAz)
+    );
+    return this.InterpolateOnCircleCenter(
+      startAlt,
+      startAz,
+      endAlt,
+      endAz,
+      ...this.VectorToAltAz(center),
+      steps
+    );
+  }
+
   GetConstellationPole() {
     const A = this.AltAzToVector(
       ...this.RaDecToAltAz(13 + 4 / 60 + 23.3937 / 3600, 69.329361)
@@ -280,12 +343,7 @@ class Observer {
 
     const p = this.GetUnitCenterCircumcircle(A, B, C);
 
-    const alt = Math.asin(p.z);
-    const az1 = Math.acos(p.x / Math.cos(alt));
-    const az2 = Math.asin(p.y / Math.cos(alt));
-    const az = az2 > 0 ? az1 : 2 * Math.PI - az1;
-
-    let [RA, DEC] = this.AltAzToRaDec(alt, az);
+    let [RA, DEC] = this.AltAzToRaDec(...this.VectorToAltAz(p));
     return [RadToDeg(RA) / 15, RadToDeg(DEC)]; //[ 12.053442491471836, 89.30386569273892 ]
   }
 }
