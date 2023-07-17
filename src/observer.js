@@ -256,6 +256,17 @@ class Observer {
     return dist <= this.fov * 0.5 * Math.SQRT2;
   }
 
+  GetUnitCenterCircumcircle(A, B, C) {
+    // https://en.wikipedia.org/wiki/Circumcircle
+    const a = A.subtract(C);
+    const b = B.subtract(C);
+    const x1 = b.multiply(a.length() ** 2);
+    const x2 = a.multiply(b.length() ** 2);
+    const numerator = x1.subtract(x2).cross(a.cross(b));
+    const denominator = 2 * a.cross(b).length() ** 2;
+    return numerator.divide(denominator).add(C).unit();
+  }
+
   GetConstellationPole() {
     const A = this.AltAzToVector(
       ...this.RaDecToAltAz(13 + 4 / 60 + 23.3937 / 3600, 69.329361)
@@ -267,14 +278,7 @@ class Observer {
       ...this.RaDecToAltAz(15 + 40 / 60 + 12.1512 / 3600, 69.6009445)
     ); //15 40 12.1512| 69.6009445|UMI
 
-    // https://en.wikipedia.org/wiki/Circumcircle
-    const a = A.subtract(C);
-    const b = B.subtract(C);
-    const x1 = b.multiply(a.length() ** 2);
-    const x2 = a.multiply(b.length() ** 2);
-    const numerator = x1.subtract(x2).cross(a.cross(b));
-    const denominator = 2 * a.cross(b).length() ** 2;
-    const p = numerator.divide(denominator).add(C).unit();
+    const p = this.GetUnitCenterCircumcircle(A, B, C);
 
     const alt = Math.asin(p.z);
     const az1 = Math.acos(p.x / Math.cos(alt));
