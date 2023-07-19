@@ -18,6 +18,7 @@ class Drawer {
 
     this.obs = new Observer(0, 0, 120, 50.07, 14.12);
 
+    this.Horizon = true;
     this.AltAzLines = false;
     this.EqLines = false;
     this.Constellations = true;
@@ -268,7 +269,7 @@ class Drawer {
       brightness = 255 / 2.5 ** (star.Mag - mediumMag);
     }
 
-    if (alt < 0) {
+    if (this.Horizon && alt < 0) {
       brightness *= 0.2;
     }
     const canX = this.width / 2 + x * this.width;
