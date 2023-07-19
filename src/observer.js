@@ -346,4 +346,13 @@ class Observer {
     let [RA, DEC] = this.AltAzToRaDec(...this.VectorToAltAz(p));
     return [RadToDeg(RA) / 15, RadToDeg(DEC)]; //[ 12.053442491471836, 89.30386569273892 ]
   }
+
+  GetConstellationCenter(boundary) {
+    let sum = new Vector(0, 0, 0);
+    boundary.forEach((point) => {
+      sum = sum.add(this.AltAzToVector(...this.RaDecToAltAz(...point)));
+    });
+    const [RA, DEC] = this.AltAzToRaDec(...this.VectorToAltAz(sum.unit()));
+    return [RadToDeg(RA) / 15, RadToDeg(DEC)];
+  }
 }
