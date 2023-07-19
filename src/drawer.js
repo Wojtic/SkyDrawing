@@ -165,7 +165,12 @@ class Drawer {
 
   getMaximumMag() {
     //const maximumMag = 2.5 / this.obs.fov + 6; // fov 140 - 7; 90 - 7.5
-    return -0.57 * this.obs.fov + 8.4;
+    return (
+      -0.8 * this.obs.fov +
+      8.4 -
+      2 +
+      Math.min(this.width, this.height) / (window.devicePixelRatio * 500)
+    );
   }
 
   drawLine(x1, y1, x2, y2) {
