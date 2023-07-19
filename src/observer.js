@@ -355,4 +355,18 @@ class Observer {
     const [RA, DEC] = this.AltAzToRaDec(...this.VectorToAltAz(sum.unit()));
     return [RadToDeg(RA) / 15, RadToDeg(DEC)];
   }
+
+  GetMaximumDistanceFromCenter(center, boundary) {
+    let maximum = 0;
+    boundary.forEach((point) => {
+      const dist = this.CalculateDistanceRaDec(
+        degToRad(center[0] * 15),
+        degToRad(center[1]),
+        degToRad(point[0] * 15),
+        degToRad(point[1])
+      );
+      if (dist > maximum) maximum = dist;
+    });
+    return maximum;
+  }
 }

@@ -18,10 +18,12 @@ class Drawer {
 
     this.obs = new Observer(0, 0, 120, 50.07, 14.12);
 
+    this.ConstellationsToDraw = [];
+
     this.Horizon = true;
     this.AltAzLines = false;
     this.EqLines = false;
-    this.Constellations = true;
+    this.Constellations = false;
 
     this.pinching = false;
     this.lastPinchDist = null;
@@ -348,6 +350,15 @@ class Drawer {
     }
   }
 
+  showConstellation(boundary) {
+    const center = this.obs.GetConstellationCenter(boundary);
+    const [alt, az] = this.obs.RaDecToAltAz(...center);
+    const fov = this.obs.GetMaximumDistanceFromCenter(center, boundary) * 2;
+    this.obs.ChangeSettings({ alt: alt, az: az, fov: fov });
+    if (!this.Constellations) this.ConstellationsToDraw = [boundary];
+    this.draw();
+  }
+
   draw() {
     this.ctx.clearRect(0, 0, this.width, this.height);
     this.ctx.fillStyle = "#0a0026";
@@ -365,6 +376,10 @@ class Drawer {
     if (this.EqLines) this.drawEqLines();
     if (this.Constellations)
       constellations.forEach((constellation) => {
+        this.drawConstellation(constellation);
+      });
+    else
+      this.ConstellationsToDraw.forEach((constellation) => {
         this.drawConstellation(constellation);
       });
   }
