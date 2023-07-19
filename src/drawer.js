@@ -200,7 +200,7 @@ class Drawer {
     const diffDEC = Math.abs(prev[1] - constellation[0][1]) / 180;
     if (diffRA < diffDEC)
       this.drawConstellationMeridian(...constellation[0], ...prev);
-    else this.drawConstellationMeridian(...constellation[0], ...prev);
+    else this.drawConstellationParallel(...constellation[0], ...prev);
   }
 
   drawConstellationMeridian(ra1, dec1, ra2, dec2) {
