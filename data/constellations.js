@@ -1719,8 +1719,6 @@ const constellations = [
   CAP_boundary,
   CAR_boundary,
   CAS_boundary,
-  DRA_boundary,
-  GEM_boundary,
   UMA_boundary,
   UMI_boundary,
   CEN_boundary,
