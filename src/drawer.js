@@ -2,6 +2,7 @@ class Drawer {
   constructor(document, div, width, height) {
     this.constellationPole = [12.053442491471836, 89.30386569273892]; // this.obs.getConstellationPole();
 
+    this.document = document;
     this.canvas = document.createElement("canvas");
     this.canvas.id = "mainCan";
     this.canvas.width = width * window.devicePixelRatio;
@@ -31,6 +32,24 @@ class Drawer {
     [this.lastX, this.lastY] = [null, null];
     this.bindInput();
     this.draw();
+  }
+
+  constellationSelection(div) {
+    const select = this.document.createElement("select");
+    const btn = this.document.createElement("button");
+    btn.innerHTML = "Show";
+    constellations.forEach((constellation) => {
+      let opt = this.document.createElement("option");
+      opt.value = constellation.abbr; // Change to name
+      opt.innerHTML = constellation.abbr; // Change to name
+      select.appendChild(opt);
+    });
+    div.appendChild(select);
+    div.appendChild(btn);
+
+    btn.onclick = (e) => {
+      this.showConstellation(constellations[select.selectedIndex]);
+    };
   }
 
   round5(num) {
