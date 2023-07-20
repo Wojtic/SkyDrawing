@@ -187,9 +187,10 @@ class Drawer {
   }
 
   drawConstellation(constellation) {
-    let prev = constellation[0];
-    for (let i = 1; i < constellation.length; i++) {
-      let newLine = constellation[i];
+    let boundary = constellation.boundary;
+    let prev = boundary[0];
+    for (let i = 1; i < boundary.length; i++) {
+      let newLine = boundary[i];
       const diffRA =
         Math.min(
           Math.abs(prev[0] - newLine[0]),
@@ -202,13 +203,13 @@ class Drawer {
     }
     const diffRA =
       Math.min(
-        Math.abs(prev[0] - constellation[0][0]),
-        Math.abs(prev[0] + 24 - constellation[0][0])
+        Math.abs(prev[0] - boundary[0][0]),
+        Math.abs(prev[0] + 24 - boundary[0][0])
       ) / 24;
-    const diffDEC = Math.abs(prev[1] - constellation[0][1]) / 180;
+    const diffDEC = Math.abs(prev[1] - boundary[0][1]) / 180;
     if (diffRA < diffDEC)
-      this.drawConstellationMeridian(...constellation[0], ...prev);
-    else this.drawConstellationParallel(...constellation[0], ...prev);
+      this.drawConstellationMeridian(...boundary[0], ...prev);
+    else this.drawConstellationParallel(...boundary[0], ...prev);
   }
 
   drawConstellationMeridian(ra1, dec1, ra2, dec2) {
@@ -350,13 +351,15 @@ class Drawer {
     }
   }
 
-  showConstellation(boundary) {
+  showConstellation(constellation) {
     this.obs.ChangeSettings({ lat: Math.PI / 2 - 0.05, long: 0 });
-    const center = this.obs.GetConstellationCenter(boundary);
-    const [alt, az] = this.obs.RaDecToAltAz(...center);
-    const fov = this.obs.GetMaximumDistanceFromCenter(center, boundary) * 2;
-    this.obs.ChangeSettings({ alt: alt, az: az, fov: fov });
-    if (!this.Constellations) this.ConstellationsToDraw = [boundary];
+    const [alt, az] = this.obs.RaDecToAltAz(...constellation.center);
+    this.obs.ChangeSettings({
+      alt: alt,
+      az: az,
+      fov: constellation.maxAngDist * 2,
+    });
+    if (!this.Constellations) this.ConstellationsToDraw = [constellation];
     this.draw();
   }
 
