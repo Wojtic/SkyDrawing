@@ -21,7 +21,7 @@ class Drawer {
 
     this.ConstellationsToDraw = [];
 
-    this.Horizon = true;
+    this.Horizon = false;
     this.AltAzLines = false;
     this.EqLines = false;
     this.Constellations = false;
