@@ -371,4 +371,27 @@ class Observer {
     });
     return maximum;
   }
+
+  /*GetConstellationObjects() {
+    const constellationNames = [
+      "AND", "ANT", "APS", "AQR", "AQL", "ARA", "ARI", "AUR", "BOO", "CAE", "CAM", "CNC", "CVN",
+      "CMA", "CMI", "CAP", "CAR", "CAS", "UMA", "UMI", "CEN", "CEP", "CET", "CHA", "CIR", "COL",
+      "COM", "CRA", "CRB", "CRV", "CRT", "CRU", "CYG", "DEL", "DOR", "DRA", "EQU", "ERI", "FOR",
+      "GEM", "GRU", "HER", "HOR", "HYA", "HYI", "IND", "LAC", "LEO", "LMI", "LEP", "LIB", "LUP",
+      "LYN", "LYR", "MEN", "MIC", "MON", "MUS", "NOR", "OCT", "OPH", "ORI", "PAV", "PEG", "PER",
+      "PHE", "PIC", "PSC", "PSA", "PUP", "PYX", "RET", "SGE", "SGR", "SCO", "SCL", "SCT", "SEX",
+      "TAU", "TEL", "TRI", "TRA", "TUC", "VEL", "VIR", "VOL", "VUL",
+    ];
+    let all = "";
+    for (let i = 0; i < constellations.length; i++) {
+      const center = this.GetConstellationCenter(constellations[i]);
+      all +=
+        "const " + constellationNames[i] + ' = {name: "", abbr: "' +
+        constellationNames[i] + '", center: [' + center[0] +
+        ", " + center[1] + "], maxAngDist: " +
+        this.GetMaximumDistanceFromCenter(center, constellations[i]) +
+        ", boundary: " + constellationNames[i] + "_boundary }\n";
+    }
+    return all;
+  }*/
 }
