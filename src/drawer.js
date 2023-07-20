@@ -351,6 +351,7 @@ class Drawer {
   }
 
   showConstellation(boundary) {
+    this.obs.ChangeSettings({ lat: Math.PI / 2 - 0.05, long: 0 });
     const center = this.obs.GetConstellationCenter(boundary);
     const [alt, az] = this.obs.RaDecToAltAz(...center);
     const fov = this.obs.GetMaximumDistanceFromCenter(center, boundary) * 2;

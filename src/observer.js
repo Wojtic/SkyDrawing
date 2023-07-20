@@ -92,6 +92,7 @@ class Observer {
   }
 
   CalculateDistanceRaDec(RA1, DEC1, RA2 = this.RA, DEC2 = this.DEC) {
+    //console.log(this.RA, this.DEC);
     return Math.acos(
       Math.sin(DEC1) * Math.sin(DEC2) +
         Math.cos(DEC1) * Math.cos(DEC2) * Math.cos(RA1 - RA2)
@@ -176,6 +177,7 @@ class Observer {
 
   AltAzToRaDec(alt, az) {
     // Practical astronomy with your Calculator or Spreadsheet page 48
+    // Is bugy at latitude 90deg (division by zero, I was unable to eliminate it)
     let LMST = this.CalculateLMST();
 
     let sinDec =
