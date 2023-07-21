@@ -1,6 +1,7 @@
 class Drawer {
   constructor(document, div, width, height) {
     this.constellationPole = [12.053442491471836, 89.30386569273892]; // this.obs.getConstellationPole();
+    this.constellationSelectionDiv = null;
 
     this.document = document;
     this.canvas = document.createElement("canvas");
@@ -21,6 +22,7 @@ class Drawer {
 
     this.ConstellationsToDraw = [];
 
+    this.Czech = true;
     this.Horizon = true;
     this.AltAzLines = false;
     this.EqLines = false;
@@ -34,14 +36,15 @@ class Drawer {
     this.draw();
   }
 
-  constellationSelection(div) {
+  constellationSelection(div = this.constellationSelectionDiv) {
+    this.constellationSelectionDiv = div;
     const select = this.document.createElement("select");
     const btn = this.document.createElement("button");
     btn.innerHTML = "Show";
     constellations.forEach((constellation) => {
       let opt = this.document.createElement("option");
-      opt.value = constellation.abbr; // Change to name
-      opt.innerHTML = constellation.abbr; // Change to name
+      opt.value = this.Czech ? constellation.czech : constellation.latin; // Change to name
+      opt.innerHTML = this.Czech ? constellation.czech : constellation.latin; // Change to name
       select.appendChild(opt);
     });
     div.appendChild(select);
@@ -58,6 +61,7 @@ class Drawer {
       [this.AltAzLines, "Alt Az Lines"],
       [this.EqLines, "Eq Lines"],
       [this.Constellations, "Constellations"],
+      [this.Czech, "Czech Names"],
     ];
     for (let i = 0; i < btns.length; i++) {
       const Chb = this.document.createElement("input");
@@ -79,6 +83,12 @@ class Drawer {
           case 3:
             this.Constellations = Chb.checked;
             break;
+          case 4:
+            this.Czech = Chb.checked;
+            if (this.constellationSelectionDiv) {
+              this.constellationSelectionDiv.innerHTML = "";
+              this.constellationSelection();
+            }
           default:
             break;
         }
