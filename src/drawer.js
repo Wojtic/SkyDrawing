@@ -21,7 +21,7 @@ class Drawer {
 
     this.ConstellationsToDraw = [];
 
-    this.Horizon = false;
+    this.Horizon = true;
     this.AltAzLines = false;
     this.EqLines = false;
     this.Constellations = false;
@@ -50,6 +50,46 @@ class Drawer {
     btn.onclick = (e) => {
       this.showConstellation(constellations[select.selectedIndex]);
     };
+  }
+
+  options(div) {
+    const btns = [
+      [this.Horizon, "Horzion"],
+      [this.AltAzLines, "Alt Az Lines"],
+      [this.EqLines, "Eq Lines"],
+      [this.Constellations, "Constellations"],
+    ];
+    for (let i = 0; i < btns.length; i++) {
+      const Chb = this.document.createElement("input");
+      Chb.type = "checkbox";
+      Chb.name = btns[i][1].replace(/\s/g, "");
+      Chb.value = btns[i][1].replace(/\s/g, "");
+      Chb.checked = btns[i][0];
+      Chb.onclick = () => {
+        switch (i) {
+          case 0:
+            this.Horizon = Chb.checked;
+            break;
+          case 1:
+            this.AltAzLines = Chb.checked;
+            break;
+          case 2:
+            this.EqLines = Chb.checked;
+            break;
+          case 3:
+            this.Constellations = Chb.checked;
+            break;
+          default:
+            break;
+        }
+        this.draw();
+      };
+      const Lbl = this.document.createElement("label");
+      Lbl.for = btns[i][1].replace(/\s/g, "");
+      Lbl.innerHTML = btns[i][1] + ":";
+      div.appendChild(Lbl);
+      div.appendChild(Chb);
+    }
   }
 
   round5(num) {
@@ -292,7 +332,11 @@ class Drawer {
     }
 
     if (this.Horizon && alt < 0) {
-      brightness *= 0.2;
+      if (r > 1) {
+        brightness *= 0.5;
+      } else {
+        brightness = Math.min(brightness, 5);
+      }
     }
     const canX = this.width / 2 + x * this.width;
     const canY = this.height / 2 - y * this.height;
