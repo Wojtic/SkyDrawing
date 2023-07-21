@@ -425,7 +425,7 @@ class Drawer {
   }
 
   showConstellation(constellation) {
-    this.obs.ChangeSettings({ lat: Math.PI / 2 - 0.05, long: 0 });
+    this.obs.ChangeSettings({ lat: Math.PI / 2 - 0.005, long: 0 }); // Change to Math.PI/2 when 0 divison bug is fixed
     const [alt, az] = this.obs.RaDecToAltAz(...constellation.center);
     this.obs.ChangeSettings({
       alt: alt,
