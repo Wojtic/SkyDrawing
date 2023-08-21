@@ -63,39 +63,38 @@ class Drawer {
       [this.Constellations, "Constellations"],
       [this.Czech, "Czech Names"],
     ];
+
+    const btnsNames = btns.map((elem) => elem[1].replace(/\s/g, ""));
+
+    const change = () => {
+      this.Horizon = this.document.getElementsByName(btnsNames[0])[0].checked;
+      this.AltAzLines = this.document.getElementsByName(
+        btnsNames[1]
+      )[0].checked;
+      this.EqLines = this.document.getElementsByName(btnsNames[2])[0].checked;
+      this.Constellations = this.document.getElementsByName(
+        btnsNames[3]
+      )[0].checked;
+      let newCzech = this.document.getElementsByName(btnsNames[4])[0].checked;
+      if (newCzech != this.Czech) {
+        this.Czech = newCzech;
+        if (this.constellationSelectionDiv) {
+          this.constellationSelectionDiv.innerHTML = "";
+          this.constellationSelection();
+        }
+      }
+      this.draw();
+    };
+
     for (let i = 0; i < btns.length; i++) {
       const Chb = this.document.createElement("input");
       Chb.type = "checkbox";
-      Chb.name = btns[i][1].replace(/\s/g, "");
-      Chb.value = btns[i][1].replace(/\s/g, "");
+      Chb.name = btnsNames[i];
+      Chb.value = btnsNames[i];
       Chb.checked = btns[i][0];
-      Chb.onclick = () => {
-        switch (i) {
-          case 0:
-            this.Horizon = Chb.checked;
-            break;
-          case 1:
-            this.AltAzLines = Chb.checked;
-            break;
-          case 2:
-            this.EqLines = Chb.checked;
-            break;
-          case 3:
-            this.Constellations = Chb.checked;
-            break;
-          case 4:
-            this.Czech = Chb.checked;
-            if (this.constellationSelectionDiv) {
-              this.constellationSelectionDiv.innerHTML = "";
-              this.constellationSelection();
-            }
-          default:
-            break;
-        }
-        this.draw();
-      };
+      Chb.onclick = change;
       const Lbl = this.document.createElement("label");
-      Lbl.for = btns[i][1].replace(/\s/g, "");
+      Lbl.for = btnsNames[i];
       Lbl.innerHTML = btns[i][1] + ":";
       div.appendChild(Lbl);
       div.appendChild(Chb);
