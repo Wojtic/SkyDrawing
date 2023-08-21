@@ -13,7 +13,8 @@ class Observer {
     fov = 120,
     lat = 90,
     long = 0,
-    date = new Date()
+    date = new Date(),
+    projection = "perspective"
   ) {
     this.ChangeSettings({
       alt: degToRad(alt),
@@ -22,6 +23,7 @@ class Observer {
       lat: degToRad(lat),
       long: degToRad(long),
       date: date,
+      projection: projection,
     });
   }
 
@@ -32,6 +34,7 @@ class Observer {
     lat = this.lat,
     long = this.long,
     date = this.date,
+    projection = this.projection,
   }) {
     this.alt = alt; //-pi/2 to pi/2
     this.az = az; //0 to 2pi
@@ -40,6 +43,8 @@ class Observer {
     this.lat = lat;
     this.long = long; // east is positive
     this.date = date;
+
+    this.projection = projection;
 
     this.dist = 0.5 / Math.tan(this.fov / 2);
     this.Odir = new Vector(
@@ -213,34 +218,21 @@ class Observer {
     if (!ignoreFov && S.angleTo(this.O) >= this.fov * Math.sqrt(2) * 0.5) {
       return [null, null]; // The star lies outside of the FOV
     }
-    // calculate intersection of the observer plane and line through S
-    // Plane (this.): dist = x Odir.x + y Odir.y + z Odir.z
-    // Line: x/S.x = y/S.y = z/S.z
-    const P = new Vector(
-      this.dist / (this.Odir.x + (this.Odir.y * S.y + this.Odir.z * S.z) / S.x),
-      (this.dist * S.y) /
-        (this.Odir.x * S.x + this.Odir.y * S.y + this.Odir.z * S.z),
-      (this.dist * S.z) /
-        (this.Odir.x * S.x + this.Odir.y * S.y + this.Odir.z * S.z)
-    );
-    if (P.angleTo(S) == Math.PI) return [null, null]; // The line passes first through origin
-    // Now we want to project P onto Ox and Oy
-    // The lengths of the projected vectors are the x and y values
-    // So we only care about the scalar projection
-    const x = P.length() * Math.cos(P.angleTo(this.Ox));
-    const y = P.length() * Math.cos(P.angleTo(this.Oy));
-    return [x, y];
+    switch (this.projection) {
+      case "perspective":
+        return this.PerspectiveAltAzToXY(alt, az);
+      default:
+        return this.PerspectiveAltAzToXY(alt, az);
+    }
   }
 
   XYToAltAz(x, y) {
-    // O + x * Ox + y * Oy
-    const P = this.O.add(this.Ox.multiply(x)).add(this.Oy.multiply(y));
-    // Now we need to nomralize it, so that we get a point on a unit sphere
-    const solution = P.unit();
-    const alt = Math.asin(solution.z);
-    const az1 = Math.acos(solution.x / Math.cos(alt));
-    const az2 = Math.asin(solution.y / Math.cos(alt));
-    return [alt, az2 > 0 ? az1 : 2 * Math.PI - az1];
+    switch (this.projection) {
+      case "perspective":
+        return this.PerspectiveXYToAltAz(x, y);
+      default:
+        return this.PerspectiveXYToAltAz(x, y);
+    }
   }
 
   AltAzToXYDeg(alt, az) {
@@ -391,4 +383,7 @@ class Observer {
     });
     return all;
   }*/
+  // For intellisense
+  PerspectiveAltAzToXY(alt, az) {}
+  PerspectiveXYToAltAz(x, y) {}
 }
