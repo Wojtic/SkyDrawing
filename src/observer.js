@@ -60,17 +60,11 @@ class Observer {
 
   UpdateAltAZ(deltaAlt, deltaAz) {
     let newAlt = this.alt + deltaAlt;
-    if (newAlt > Math.PI / 2) {
-      newAlt = Math.PI / 2;
-    }
-    if (newAlt < -Math.PI / 2) {
-      newAlt = -Math.PI / 2;
-    }
+    if (newAlt > Math.PI / 2) newAlt = Math.PI / 2;
+    if (newAlt < -Math.PI / 2) newAlt = -Math.PI / 2;
     let newAz = this.az + deltaAz;
     newAz %= 2 * Math.PI;
-    if (newAz < 0) {
-      newAz += 2 * Math.PI;
-    }
+    if (newAz < 0) newAz += 2 * Math.PI;
     this.ChangeSettings({ alt: newAlt, az: newAz });
   }
 

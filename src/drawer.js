@@ -145,8 +145,8 @@ class Drawer {
     };*/
     const zoom = (delta) => {
       if (delta > 0) {
-        if (this.obs.fov >= degToRad(140) / 1.1) {
-          this.obs.ChangeSettings({ fov: degToRad(140) });
+        if (this.obs.fov >= degToRad(120) / 1.1) {
+          this.obs.ChangeSettings({ fov: degToRad(120) });
         } else {
           this.obs.ChangeSettings({ fov: this.obs.fov * 1.1 });
         }
