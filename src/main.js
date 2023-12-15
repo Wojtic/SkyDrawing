@@ -6,4 +6,5 @@ const dr = new Drawer(
   size
 );
 dr.constellationSelection(document.getElementsByClassName("cnstShow")[0]);
+dr.projectionSelection(document.getElementsByClassName("projSlct")[0]);
 dr.options(document.getElementsByClassName("optns")[0]);

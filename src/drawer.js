@@ -3,6 +3,8 @@ class Drawer {
     this.constellationPole = [12.053442491471836, 89.30386569273892]; // this.obs.getConstellationPole();
     this.constellationSelectionDiv = null;
 
+    this.projectionSelectionDiv = null;
+
     this.document = document;
     this.canvas = document.createElement("canvas");
     this.canvas.id = "mainCan";
@@ -55,6 +57,29 @@ class Drawer {
     };
   }
 
+  projectionSelection(div = this.projectionSelectionDiv) {
+    this.projectionSelectionDiv = div;
+    const select = this.document.createElement("select");
+    const btn = this.document.createElement("button");
+    btn.innerHTML = "Change";
+
+    const options = ["stereographic", "perspective"];
+
+    options.forEach((option) => {
+      let opt = this.document.createElement("option");
+      opt.value = option;
+      opt.innerHTML = option;
+      select.appendChild(opt);
+    });
+    div.appendChild(select);
+    div.appendChild(btn);
+
+    btn.onclick = (e) => {
+      this.obs.projection = options[select.selectedIndex];
+      this.draw();
+    };
+  }
+
   options(div) {
     const btns = [
       [this.Horizon, "Horzion"],
@@ -81,6 +106,10 @@ class Drawer {
         if (this.constellationSelectionDiv) {
           this.constellationSelectionDiv.innerHTML = "";
           this.constellationSelection();
+        }
+        if (this.projectionSelectionDiv) {
+          this.projectionSelectionDiv.innerHTML = "";
+          this.projectionSelection();
         }
       }
       this.draw();
@@ -143,9 +172,11 @@ class Drawer {
       console.log(RadToDeg(this.obs.CalculateDistanceRaDec(RA, DEC)));
     };*/
     const zoom = (delta) => {
+      const MAXFOV = 180; // 120 for perspective
+
       if (delta > 0) {
-        if (this.obs.fov >= degToRad(120) / 1.1) {
-          this.obs.ChangeSettings({ fov: degToRad(120) });
+        if (this.obs.fov >= degToRad(MAXFOV) / 1.1) {
+          this.obs.ChangeSettings({ fov: degToRad(MAXFOV) });
         } else {
           this.obs.ChangeSettings({ fov: this.obs.fov * 1.1 });
         }

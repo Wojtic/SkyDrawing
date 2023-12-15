@@ -14,7 +14,7 @@ class Observer {
     lat = 90,
     long = 0,
     date = new Date(),
-    projection = "perspective"
+    projection = "stereographic"
   ) {
     this.ChangeSettings({
       alt: degToRad(alt),
@@ -220,8 +220,9 @@ class Observer {
     switch (this.projection) {
       case "perspective":
         return this.PerspectiveAltAzToXY(alt, az);
+      case "stereographic":
       default:
-        return this.PerspectiveAltAzToXY(alt, az);
+        return this.StereographicAltAzToXY(alt, az);
     }
   }
 

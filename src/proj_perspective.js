@@ -29,3 +29,22 @@ Observer.prototype.PerspectiveXYToAltAz = function (x, y) {
   const az2 = Math.asin(solution.y / Math.cos(alt));
   return [alt, az2 > 0 ? az1 : 2 * Math.PI - az1];
 };
+
+Observer.prototype.StereographicAltAzToXY = function (alt, az) {
+  // Inefficient (everything is)
+  const S = this.AltAzToVector(alt, az)
+    .multiply(-1)
+    .rotateAround(this.Odir, -this.az + Math.PI / 2)
+    .rotateAround(
+      new Vector(0, 0, -1).cross(this.Odir),
+      Math.PI / 2 - this.alt
+    );
+  const x = S.x / (1 - S.z);
+  const y = S.y / (1 - S.z);
+
+  return [(x * 1.8) / this.fov, (y * 1.8) / this.fov]; // Magic, doesn't work
+};
+
+Observer.prototype.StereographicXYToAltAz = function (x, y) {
+  // TODO
+};
