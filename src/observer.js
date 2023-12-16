@@ -214,7 +214,11 @@ class Observer {
 
   AltAzToXY(alt, az, ignoreFov = false) {
     const S = this.AltAzToVector(alt, az);
-    if (!ignoreFov && S.angleTo(this.O) >= this.fov * Math.sqrt(2) * 0.5) {
+    if (
+      this.fov < Math.PI && // For some reason creates hole in the middle if FOV is bigger
+      !ignoreFov &&
+      S.angleTo(this.O) > this.fov * 0.5 * Math.SQRT2
+    ) {
       return [null, null]; // The star lies outside of the FOV
     }
     switch (this.projection) {

@@ -21,6 +21,7 @@ class Drawer {
     this.height = height * window.devicePixelRatio;
 
     this.obs = new Observer(0, 0, 120, 50.07, 14.12);
+    this.MAXFOV = 230; // 120 for perspective
 
     this.ConstellationsToDraw = [];
 
@@ -76,6 +77,9 @@ class Drawer {
 
     btn.onclick = (e) => {
       this.obs.projection = options[select.selectedIndex];
+      this.MAXFOV = this.obs.projection == "stereographic" ? 230 : 120;
+      if (this.obs.fov > degToRad(this.MAXFOV))
+        this.obs.ChangeSettings({ fov: degToRad(this.MAXFOV) });
       this.draw();
     };
   }
@@ -172,11 +176,9 @@ class Drawer {
       console.log(RadToDeg(this.obs.CalculateDistanceRaDec(RA, DEC)));
     };*/
     const zoom = (delta) => {
-      const MAXFOV = 180; // 120 for perspective
-
       if (delta > 0) {
-        if (this.obs.fov >= degToRad(MAXFOV) / 1.1) {
-          this.obs.ChangeSettings({ fov: degToRad(MAXFOV) });
+        if (this.obs.fov >= degToRad(this.MAXFOV) / 1.1) {
+          this.obs.ChangeSettings({ fov: degToRad(this.MAXFOV) });
         } else {
           this.obs.ChangeSettings({ fov: this.obs.fov * 1.1 });
         }
