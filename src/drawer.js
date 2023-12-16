@@ -389,7 +389,7 @@ class Drawer {
   drawEqLines() {
     // Bugy
     const RAinterval = (2 * Math.PI) / 24;
-    const DECrez = 20;
+    const DECrez = 180 / 18;
 
     const DECinterval = 10;
     const RArez = 0.4 - (0.4 - this.obs.fov / 10);
@@ -397,10 +397,10 @@ class Drawer {
     this.ctx.strokeStyle = "#808080";
 
     for (let ra = 0; ra < 2 * Math.PI; ra += RAinterval) {
-      let [prevX, prevY] = this.obs.RaDecToXY(RadToDeg(ra) / 15, -90);
+      let [prevX, prevY] = this.obs.RaDecToXYWide(RadToDeg(ra) / 15, -90);
       this.ctx.beginPath();
       for (let dec = -90 + DECrez; dec <= 90; dec += DECrez) {
-        let [newX, newY] = this.obs.RaDecToXY(RadToDeg(ra) / 15, dec);
+        let [newX, newY] = this.obs.RaDecToXYWide(RadToDeg(ra) / 15, dec);
         this.drawLine(prevX, prevY, newX, newY);
         [prevX, prevY] = [newX, newY];
       }
@@ -408,10 +408,10 @@ class Drawer {
     }
 
     for (let dec = -90; dec < 90; dec += DECinterval) {
-      let [prevX, prevY] = this.obs.RaDecToXY(0, dec);
+      let [prevX, prevY] = this.obs.RaDecToXYWide(0, dec);
       this.ctx.beginPath();
       for (let ra = RArez; ra <= 24 + RArez; ra += RArez) {
-        let [newX, newY] = this.obs.RaDecToXY(ra, dec);
+        let [newX, newY] = this.obs.RaDecToXYWide(ra, dec);
         this.drawLine(prevX, prevY, newX, newY);
         [prevX, prevY] = [newX, newY];
       }
@@ -422,17 +422,21 @@ class Drawer {
   drawAltAzLines() {
     // Really bugy
     const Azinterval = (2 * Math.PI) / 24;
-    const Altrez = 0.1;
+    const Altrez = Math.PI / 18;
 
     const Altinterval = Math.PI / 18;
-    const Azrez = 0.1;
+    const Azrez = (2 * Math.PI) / 48;
 
     this.ctx.strokeStyle = "#808080";
 
     for (let az = 0; az < 2 * Math.PI; az += Azinterval) {
       let [prevX, prevY] = this.obs.AltAzToXYWide(-Math.PI / 2, az);
       this.ctx.beginPath();
-      for (let alt = -Math.PI / 2 + Altrez; alt <= Math.PI / 2; alt += Altrez) {
+      for (
+        let alt = -Math.PI / 2 + Altrez;
+        alt <= Math.PI / 2 + 0.01; // Dirty fix for rounding issue, refactor
+        alt += Altrez
+      ) {
         let [newX, newY] = this.obs.AltAzToXYWide(alt, az);
         this.drawLine(prevX, prevY, newX, newY);
         [prevX, prevY] = [newX, newY];
@@ -441,12 +445,12 @@ class Drawer {
     }
 
     for (let alt = -Math.PI / 2; alt < Math.PI / 2; alt += Altinterval) {
-      let [prevX, prevY] = this.obs.AltAzToXY(alt, 0);
+      let [prevX, prevY] = this.obs.AltAzToXYWide(alt, 0);
       this.ctx.beginPath();
       this.ctx.lineWidth = 1;
       if (this.round5(alt) == 0) this.ctx.lineWidth = 2;
       for (let az = Azrez; az <= 2 * Math.PI + Azrez; az += Azrez) {
-        let [newX, newY] = this.obs.AltAzToXY(alt, az);
+        let [newX, newY] = this.obs.AltAzToXYWide(alt, az);
         this.drawLine(prevX, prevY, newX, newY);
         [prevX, prevY] = [newX, newY];
       }
