@@ -218,13 +218,14 @@ class Observer {
       this.fov < Math.PI && // For some reason creates hole in the middle if FOV is bigger
       !ignoreFov &&
       S.angleTo(this.O) > this.fov * 0.5 * Math.SQRT2
-    ) {
+    )
       return [null, null]; // The star lies outside of the FOV
-    }
+
     switch (this.projection) {
       case "perspective":
         return this.PerspectiveAltAzToXY(alt, az);
       case "stereographic":
+        return this.StereographicAltAzToXY(alt, az);
       default:
         return this.StereographicAltAzToXY(alt, az);
     }
