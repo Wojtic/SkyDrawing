@@ -1,5 +1,27 @@
 class Drawer {
   constructor(document, div, width, height) {
+    this.UMaLines = [
+      [this.getStarByName("Dubhe"), this.getStarByName("Merak")],
+      [this.getStarByName("Merak"), this.getStarByBayer("64Gam UMa")],
+      [this.getStarByBayer("69Del UMa"), this.getStarByBayer("64Gam UMa")],
+      [this.getStarByBayer("69Del UMa"), this.getStarByName("Dubhe")],
+      [this.getStarByBayer("69Del UMa"), this.getStarByBayer("77Eps UMa")],
+      [this.getStarByBayer("79Zet UMa"), this.getStarByBayer("77Eps UMa")],
+      [this.getStarByBayer("79Zet UMa"), this.getStarByName("Alkaid")],
+    ];
+    this.OriLines = [
+      [this.getStarByName("Rigel"), this.getStarByName("Saiph")],
+      [this.getStarByName("Alnitak"), this.getStarByName("Saiph")],
+      [this.getStarByName("Alnitak"), this.getStarByName("Betelgeuse")],
+      [this.getStarByName("Alnitak"), this.getStarByName("Alnilam")],
+      [this.getStarByName("Alnilam"), this.getStarByBayer("34Del Ori")],
+      [this.getStarByName("Rigel"), this.getStarByBayer("34Del Ori")],
+      [this.getStarByName("Bellatrix"), this.getStarByBayer("34Del Ori")],
+      [this.getStarByName("Bellatrix"), this.getStarByBayer("39Lam Ori")],
+      [this.getStarByName("Betelgeuse"), this.getStarByBayer("39Lam Ori")],
+    ];
+    console.log(this.OriLines);
+
     this.constellationPole = [12.053442491471836, 89.30386569273892]; // this.obs.getConstellationPole();
     this.constellationSelectionDiv = null;
 
@@ -388,6 +410,40 @@ class Drawer {
     this.ctx.fill();
   }
 
+  drawConstellationLines(constellationLines) {
+    this.ctx.strokeStyle = "#808080";
+    this.ctx.beginPath();
+    for (let i = 0; i < constellationLines.length; i++) {
+      if (
+        this.obs.CheckVisibility(
+          constellationLines[i][0].RA,
+          constellationLines[i][0].Dec
+        ) &&
+        this.obs.CheckVisibility(
+          constellationLines[i][1].RA,
+          constellationLines[i][1].Dec
+        )
+      ) {
+        let [startX, startY] = this.obs.RaDecToXYWide(
+          constellationLines[i][0].RA,
+          constellationLines[i][0].Dec
+        );
+        let [endX, endY] = this.obs.RaDecToXYWide(
+          constellationLines[i][1].RA,
+          constellationLines[i][1].Dec
+        );
+        this.drawLine(startX, startY, endX, endY);
+      }
+    }
+    this.ctx.stroke();
+    this.obs.CheckVisibility();
+  }
+
+  drawConstellationsLines() {
+    this.drawConstellationLines(this.UMaLines);
+    this.drawConstellationLines(this.OriLines);
+  }
+
   drawEqLines() {
     // Bugy
     const RAinterval = (2 * Math.PI) / 24;
@@ -476,7 +532,7 @@ class Drawer {
     this.ctx.clearRect(0, 0, this.width, this.height);
     this.ctx.fillStyle = "#0a0026";
     this.ctx.fillRect(0, 0, this.width, this.height);
-
+    this.drawConstellationsLines();
     hvezdy.forEach((hvezda) => {
       if (
         hvezda.Mag < this.getMaximumMag() &&
@@ -495,5 +551,37 @@ class Drawer {
       this.ConstellationsToDraw.forEach((constellation) => {
         this.drawConstellation(constellation);
       });
+  }
+  /*tarID": 21936,
+  "Hip": 30438,
+  "HD": 45348,
+  "HR": 2326,
+  "Gliese": "",
+  "BayerFlamsteed": "Alp Car",
+  "ProperName": "Canopus",
+  "RA": 6.39919184,
+  "Dec": -52.69571799,
+  "Distance": 95.8772770853308,
+  "Mag": -0.62,
+  "AbsMag": -5.52857845786735,
+  "Spectrum": "F0Ib",
+  "ColorIndex": 0.164*/
+
+  getStarByName(name) {
+    for (let I = 0; I < hvezdy.length; I++) {
+      const hvezda = hvezdy[I];
+      if (hvezda.ProperName == name) {
+        return hvezda;
+      }
+    }
+  }
+
+  getStarByBayer(bayer) {
+    for (let I = 0; I < hvezdy.length; I++) {
+      const hvezda = hvezdy[I];
+      if (hvezda.BayerFlamsteed == bayer) {
+        return hvezda;
+      }
+    }
   }
 }
