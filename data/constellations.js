@@ -1696,6 +1696,46 @@ const VUL_boundary = [
   [19 + 20 / 60 + 29.1091 / 3600, 19.3982983],
   [19 + 20 / 60 + 23.1147 / 3600, 21.3148155],
 ];
+
+function getStarByName(name) {
+  for (let I = 0; I < hvezdy.length; I++) {
+    const hvezda = hvezdy[I];
+    if (hvezda.ProperName == name) {
+      return hvezda;
+    }
+  }
+}
+
+function getStarByBayer(bayer) {
+  for (let I = 0; I < hvezdy.length; I++) {
+    const hvezda = hvezdy[I];
+    if (hvezda.BayerFlamsteed == bayer) {
+      return hvezda;
+    }
+  }
+}
+
+const UMA_lines = [
+  [this.getStarByName("Dubhe"), this.getStarByName("Merak")],
+  [this.getStarByName("Merak"), this.getStarByBayer("64Gam UMa")],
+  [this.getStarByBayer("69Del UMa"), this.getStarByBayer("64Gam UMa")],
+  [this.getStarByBayer("69Del UMa"), this.getStarByName("Dubhe")],
+  [this.getStarByBayer("69Del UMa"), this.getStarByBayer("77Eps UMa")],
+  [this.getStarByBayer("79Zet UMa"), this.getStarByBayer("77Eps UMa")],
+  [this.getStarByBayer("79Zet UMa"), this.getStarByName("Alkaid")],
+];
+const ORI_lines = [
+  [this.getStarByName("Rigel"), this.getStarByName("Saiph")],
+  [this.getStarByName("Alnitak"), this.getStarByName("Saiph")],
+  [this.getStarByName("Alnitak"), this.getStarByName("Betelgeuse")],
+  [this.getStarByName("Alnitak"), this.getStarByName("Alnilam")],
+  [this.getStarByName("Alnilam"), this.getStarByBayer("34Del Ori")],
+  [this.getStarByName("Rigel"), this.getStarByBayer("34Del Ori")],
+  [this.getStarByName("Bellatrix"), this.getStarByBayer("34Del Ori")],
+  [this.getStarByName("Bellatrix"), this.getStarByBayer("39Lam Ori")],
+  [this.getStarByName("Betelgeuse"), this.getStarByBayer("39Lam Ori")],
+];
+
 const AND = {
   latin: "Andromeda",
   czech: "Andromeda",
@@ -1847,6 +1887,7 @@ const UMA = {
   center: [11.478615991104894, 53.031792049957616],
   maxAngDist: 0.4973589808163574,
   boundary: UMA_boundary,
+  lines: UMA_lines,
 };
 const UMI = {
   latin: "Ursa Minor",
@@ -2191,6 +2232,7 @@ const ORI = {
   center: [5.718848523480329, 9.943518139218748],
   maxAngDist: 0.38885097929070506,
   boundary: ORI_boundary,
+  lines: ORI_lines,
 };
 const PAV = {
   latin: "Pavo",

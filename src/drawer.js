@@ -1,27 +1,5 @@
 class Drawer {
   constructor(document, div, width, height) {
-    this.UMaLines = [
-      [this.getStarByName("Dubhe"), this.getStarByName("Merak")],
-      [this.getStarByName("Merak"), this.getStarByBayer("64Gam UMa")],
-      [this.getStarByBayer("69Del UMa"), this.getStarByBayer("64Gam UMa")],
-      [this.getStarByBayer("69Del UMa"), this.getStarByName("Dubhe")],
-      [this.getStarByBayer("69Del UMa"), this.getStarByBayer("77Eps UMa")],
-      [this.getStarByBayer("79Zet UMa"), this.getStarByBayer("77Eps UMa")],
-      [this.getStarByBayer("79Zet UMa"), this.getStarByName("Alkaid")],
-    ];
-    this.OriLines = [
-      [this.getStarByName("Rigel"), this.getStarByName("Saiph")],
-      [this.getStarByName("Alnitak"), this.getStarByName("Saiph")],
-      [this.getStarByName("Alnitak"), this.getStarByName("Betelgeuse")],
-      [this.getStarByName("Alnitak"), this.getStarByName("Alnilam")],
-      [this.getStarByName("Alnilam"), this.getStarByBayer("34Del Ori")],
-      [this.getStarByName("Rigel"), this.getStarByBayer("34Del Ori")],
-      [this.getStarByName("Bellatrix"), this.getStarByBayer("34Del Ori")],
-      [this.getStarByName("Bellatrix"), this.getStarByBayer("39Lam Ori")],
-      [this.getStarByName("Betelgeuse"), this.getStarByBayer("39Lam Ori")],
-    ];
-    console.log(this.OriLines);
-
     this.constellationPole = [12.053442491471836, 89.30386569273892]; // this.obs.getConstellationPole();
     this.constellationSelectionDiv = null;
 
@@ -52,6 +30,7 @@ class Drawer {
     this.AltAzLines = false;
     this.EqLines = false;
     this.Constellations = false;
+    this.ConstellationsLines = false;
 
     this.pinching = false;
     this.lastPinchDist = null;
@@ -112,6 +91,7 @@ class Drawer {
       [this.AltAzLines, "Alt Az Lines"],
       [this.EqLines, "Eq Lines"],
       [this.Constellations, "Constellations"],
+      [this.ConstellationsLines, "Constellation Lines"],
       [this.Czech, "Czech Names"],
     ];
 
@@ -126,7 +106,10 @@ class Drawer {
       this.Constellations = this.document.getElementsByName(
         btnsNames[3]
       )[0].checked;
-      let newCzech = this.document.getElementsByName(btnsNames[4])[0].checked;
+      this.ConstellationsLines = this.document.getElementsByName(
+        btnsNames[4]
+      )[0].checked;
+      let newCzech = this.document.getElementsByName(btnsNames[5])[0].checked;
       if (newCzech != this.Czech) {
         this.Czech = newCzech;
         if (this.constellationSelectionDiv) {
@@ -440,8 +423,11 @@ class Drawer {
   }
 
   drawConstellationsLines() {
-    this.drawConstellationLines(this.UMaLines);
-    this.drawConstellationLines(this.OriLines);
+    constellations.forEach((constellation) => {
+      if (constellation.lines != undefined) {
+        this.drawConstellationLines(constellation.lines);
+      }
+    });
   }
 
   drawEqLines() {
@@ -532,7 +518,6 @@ class Drawer {
     this.ctx.clearRect(0, 0, this.width, this.height);
     this.ctx.fillStyle = "#0a0026";
     this.ctx.fillRect(0, 0, this.width, this.height);
-    this.drawConstellationsLines();
     hvezdy.forEach((hvezda) => {
       if (
         hvezda.Mag < this.getMaximumMag() &&
@@ -543,6 +528,7 @@ class Drawer {
     });
     if (this.AltAzLines) this.drawAltAzLines();
     if (this.EqLines) this.drawEqLines();
+    if (this.ConstellationsLines) this.drawConstellationsLines();
     if (this.Constellations)
       constellations.forEach((constellation) => {
         this.drawConstellation(constellation);
@@ -551,37 +537,5 @@ class Drawer {
       this.ConstellationsToDraw.forEach((constellation) => {
         this.drawConstellation(constellation);
       });
-  }
-  /*tarID": 21936,
-  "Hip": 30438,
-  "HD": 45348,
-  "HR": 2326,
-  "Gliese": "",
-  "BayerFlamsteed": "Alp Car",
-  "ProperName": "Canopus",
-  "RA": 6.39919184,
-  "Dec": -52.69571799,
-  "Distance": 95.8772770853308,
-  "Mag": -0.62,
-  "AbsMag": -5.52857845786735,
-  "Spectrum": "F0Ib",
-  "ColorIndex": 0.164*/
-
-  getStarByName(name) {
-    for (let I = 0; I < hvezdy.length; I++) {
-      const hvezda = hvezdy[I];
-      if (hvezda.ProperName == name) {
-        return hvezda;
-      }
-    }
-  }
-
-  getStarByBayer(bayer) {
-    for (let I = 0; I < hvezdy.length; I++) {
-      const hvezda = hvezdy[I];
-      if (hvezda.BayerFlamsteed == bayer) {
-        return hvezda;
-      }
-    }
   }
 }
