@@ -1,5 +1,7 @@
 class Drawer {
   constructor(document, div, width, height) {
+    this.dots = [];
+
     this.constellationPole = [12.053442491471836, 89.30386569273892]; // this.obs.getConstellationPole();
     this.constellationSelectionDiv = null;
 
@@ -31,6 +33,7 @@ class Drawer {
     this.EqLines = false;
     this.Constellations = false;
     this.ConstellationsLines = false;
+    this.Debug = false;
 
     this.pinching = false;
     this.lastPinchDist = null;
@@ -93,6 +96,7 @@ class Drawer {
       [this.Constellations, "Constellations"],
       [this.ConstellationsLines, "Constellation Lines"],
       [this.Czech, "Czech Names"],
+      [this.Debug, "Show Debug"],
     ];
 
     const btnsNames = btns.map((elem) => elem[1].replace(/\s/g, ""));
@@ -121,6 +125,7 @@ class Drawer {
           this.projectionSelection();
         }
       }
+      this.Debug = this.document.getElementsByName(btnsNames[6])[0].checked;
       this.draw();
     };
 
@@ -172,14 +177,16 @@ class Drawer {
       return [x, y];
     };
 
-    /*this.canvas.onclick = (e) => {
+    this.canvas.onclick = (e) => {
       let [x, y] = getXYFromEvent(e);
       let [alt, az] = this.obs.XYToAltAz(x, y);
       let [RA, DEC] = this.obs.AltAzToRaDec(alt, az);
-      console.log(alt, az);
-      console.log(RadToDeg(RA) / 15, RadToDeg(DEC));
-      console.log(RadToDeg(this.obs.CalculateDistanceRaDec(RA, DEC)));
-    };*/
+      /*console.log(alt, az);
+      console.log("RA: ", RadToDeg(RA) / 15, "Dec: ", RadToDeg(DEC));
+      console.log(RadToDeg(this.obs.CalculateDistanceRaDec(RA, DEC)));*/
+      this.dots.push([RadToDeg(RA) / 15, RadToDeg(DEC)]);
+      this.draw();
+    };
     const zoom = (delta) => {
       if (delta > 0) {
         if (this.obs.fov >= degToRad(this.MAXFOV) / 1.1) {
@@ -514,6 +521,26 @@ class Drawer {
     this.draw();
   }
 
+  writeDebug() {
+    this.document.querySelector(".dbg").innerHTML = JSON.stringify(
+      this.obs.GetDebug()
+    ).replaceAll(",", ",\n");
+
+    /*for (let i = 0; i < this.dots.length; i++) {
+      const [alt, az] = this.obs.RaDecToAltAz(...this.dots[i]);
+      const [x, y] = this.obs.AltAzToXY(alt, az);
+      if (x == null || y == null) continue;
+      if (!(x > -0.5 && x < 0.5 && y > -0.5 && y < 0.5)) continue;
+
+      const canX = this.width / 2 + x * this.width;
+      const canY = this.height / 2 - y * this.height;
+      this.ctx.fillStyle = "#FF0000";
+      this.ctx.beginPath();
+      this.ctx.arc(canX, canY, 5, 0, 2 * Math.PI);
+      this.ctx.fill();
+    }*/
+  }
+
   draw() {
     this.ctx.clearRect(0, 0, this.width, this.height);
     this.ctx.fillStyle = "#0a0026";
@@ -537,5 +564,7 @@ class Drawer {
       this.ConstellationsToDraw.forEach((constellation) => {
         this.drawConstellation(constellation);
       });
+    if (this.Debug) this.writeDebug();
+    else this.document.querySelector(".dbg").innerHTML = "";
   }
 }

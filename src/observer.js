@@ -235,8 +235,10 @@ class Observer {
     switch (this.projection) {
       case "perspective":
         return this.PerspectiveXYToAltAz(x, y);
+      case "stereographic":
+        return this.StereographicXYToAltAz(x, y);
       default:
-        return this.PerspectiveXYToAltAz(x, y);
+        return this.StereographicXYToAltAz(x, y);
     }
   }
 
@@ -389,6 +391,8 @@ class Observer {
     return all;
   }*/
   // For intellisense
+  StereographicAltAzToXY(alt, az) {}
   PerspectiveAltAzToXY(alt, az) {}
   PerspectiveXYToAltAz(x, y) {}
+  StereographicXYToAltAz(x, y) {}
 }

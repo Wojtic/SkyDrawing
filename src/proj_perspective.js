@@ -42,9 +42,25 @@ Observer.prototype.StereographicAltAzToXY = function (alt, az) {
   const x = S.x / (1 - S.z);
   const y = S.y / (1 - S.z);
 
-  return [(x * 1.8) / this.fov, (y * 1.8) / this.fov]; // Magic, doesn't work
+  const factor = 0.93 * (degToRad(100) / this.fov);
+  return [x * factor, y * factor];
 };
 
 Observer.prototype.StereographicXYToAltAz = function (x, y) {
-  // TODO
+  const factor = 0.93 * (degToRad(100) / this.fov);
+  x = x / factor;
+  y = y / factor;
+
+  const S = new Vector(
+    (2 * x) / (1 + x * x + y * y),
+    (2 * y) / (1 + x * x + y * y),
+    (-1 + x * x + y * y) / (1 + x * x + y * y)
+  )
+    .rotateAround(
+      new Vector(0, 0, -1).cross(this.Odir),
+      -(Math.PI / 2 - this.alt)
+    )
+    .rotateAround(this.Odir, -(-this.az + Math.PI / 2))
+    .multiply(-1);
+  return this.VectorToAltAz(S);
 };
