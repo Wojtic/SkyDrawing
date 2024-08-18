@@ -93,7 +93,7 @@ class Drawer {
       [this.Horizon, "Horzion"],
       [this.AltAzLines, "Alt Az Lines"],
       [this.EqLines, "Eq Lines"],
-      [this.Constellations, "Constellations"],
+      [this.Constellations, "Boundaries"],
       [this.ConstellationsLines, "Constellation Lines"],
       [this.Czech, "Czech Names"],
       [this.Debug, "Show Debug"],
@@ -299,7 +299,51 @@ class Drawer {
     this.ctx.lineTo(canX2, canY2);
   }
 
+  drawLineRaDec(x1, y1, x2, y2) {
+    this.drawLine(
+      ...this.obs.RaDecToXYWide(x1, y1),
+      ...this.obs.RaDecToXYWide(x2, y2)
+    );
+  }
+
+  drawLines(lines) {
+    this.ctx.strokeStyle = "#808080";
+    this.ctx.beginPath();
+    for (let i = 0; i < lines.length; i++) {
+      this.drawLineRaDec(...lines[i]);
+    }
+    this.ctx.stroke();
+  }
+
   drawConstellation(constellation) {
+    const drawConstellationMeridian = (ra1, dec1, ra2, dec2) => {
+      const STEPS = 3;
+      const [alt1, az1] = this.obs.RaDecToAltAz(ra1, dec1);
+      const [alt2, az2] = this.obs.RaDecToAltAz(ra2, dec2);
+      const stepsAltAz = this.obs.InterpolateOnCircle3Points(
+        alt1,
+        az1,
+        alt2,
+        az2,
+        ...this.obs.RaDecToAltAz(...this.constellationPole),
+        STEPS
+      );
+      this.drawContinuousLineAltAz(stepsAltAz);
+    };
+
+    const drawConstellationParallel = (ra1, dec1, ra2, dec2) => {
+      const [alt1, az1] = this.obs.RaDecToAltAz(ra1, dec1);
+      const [alt2, az2] = this.obs.RaDecToAltAz(ra2, dec2);
+      const stepsAltAz = this.obs.InterpolateOnCircleCenter(
+        alt1,
+        az1,
+        alt2,
+        az2,
+        ...this.obs.RaDecToAltAz(...this.constellationPole)
+      );
+      this.drawContinuousLineAltAz(stepsAltAz);
+    };
+
     let boundary = constellation.boundary;
     let prev = boundary[0];
     for (let i = 1; i < boundary.length; i++) {
@@ -310,8 +354,8 @@ class Drawer {
           Math.abs(prev[0] + 24 - newLine[0])
         ) / 24;
       const diffDEC = Math.abs(prev[1] - newLine[1]) / 180;
-      if (diffRA < diffDEC) this.drawConstellationMeridian(...prev, ...newLine);
-      else this.drawConstellationParallel(...prev, ...newLine);
+      if (diffRA < diffDEC) drawConstellationMeridian(...prev, ...newLine);
+      else drawConstellationParallel(...prev, ...newLine);
       prev = newLine;
     }
     const diffRA =
@@ -320,40 +364,11 @@ class Drawer {
         Math.abs(prev[0] + 24 - boundary[0][0])
       ) / 24;
     const diffDEC = Math.abs(prev[1] - boundary[0][1]) / 180;
-    if (diffRA < diffDEC)
-      this.drawConstellationMeridian(...boundary[0], ...prev);
-    else this.drawConstellationParallel(...boundary[0], ...prev);
+    if (diffRA < diffDEC) drawConstellationMeridian(...boundary[0], ...prev);
+    else drawConstellationParallel(...boundary[0], ...prev);
   }
 
-  drawConstellationMeridian(ra1, dec1, ra2, dec2) {
-    const STEPS = 3;
-    const [alt1, az1] = this.obs.RaDecToAltAz(ra1, dec1);
-    const [alt2, az2] = this.obs.RaDecToAltAz(ra2, dec2);
-    const stepsAltAz = this.obs.InterpolateOnCircle3Points(
-      alt1,
-      az1,
-      alt2,
-      az2,
-      ...this.obs.RaDecToAltAz(...this.constellationPole),
-      STEPS
-    );
-    this.drawSetOfPointsAltAz(stepsAltAz);
-  }
-
-  drawConstellationParallel(ra1, dec1, ra2, dec2) {
-    const [alt1, az1] = this.obs.RaDecToAltAz(ra1, dec1);
-    const [alt2, az2] = this.obs.RaDecToAltAz(ra2, dec2);
-    const stepsAltAz = this.obs.InterpolateOnCircleCenter(
-      alt1,
-      az1,
-      alt2,
-      az2,
-      ...this.obs.RaDecToAltAz(...this.constellationPole)
-    );
-    this.drawSetOfPointsAltAz(stepsAltAz);
-  }
-
-  drawSetOfPointsAltAz(set) {
+  drawContinuousLineAltAz(set) {
     this.ctx.strokeStyle = "#808080";
     let [prevX, prevY] = this.obs.AltAzToXY(...set[0]);
     this.ctx.beginPath();
@@ -435,39 +450,6 @@ class Drawer {
         this.drawConstellationLines(constellation.lines);
       }
     });
-  }
-
-  drawEqLines() {
-    // Bugy
-    const RAinterval = (2 * Math.PI) / 24;
-    const DECrez = 180 / 18;
-
-    const DECinterval = 10;
-    const RArez = 0.4 - (0.4 - this.obs.fov / 10);
-
-    this.ctx.strokeStyle = "#808080";
-
-    for (let ra = 0; ra < 2 * Math.PI; ra += RAinterval) {
-      let [prevX, prevY] = this.obs.RaDecToXYWide(RadToDeg(ra) / 15, -90);
-      this.ctx.beginPath();
-      for (let dec = -90 + DECrez; dec <= 90; dec += DECrez) {
-        let [newX, newY] = this.obs.RaDecToXYWide(RadToDeg(ra) / 15, dec);
-        this.drawLine(prevX, prevY, newX, newY);
-        [prevX, prevY] = [newX, newY];
-      }
-      this.ctx.stroke();
-    }
-
-    for (let dec = -90; dec < 90; dec += DECinterval) {
-      let [prevX, prevY] = this.obs.RaDecToXYWide(0, dec);
-      this.ctx.beginPath();
-      for (let ra = RArez; ra <= 24 + RArez; ra += RArez) {
-        let [newX, newY] = this.obs.RaDecToXYWide(ra, dec);
-        this.drawLine(prevX, prevY, newX, newY);
-        [prevX, prevY] = [newX, newY];
-      }
-      this.ctx.stroke();
-    }
   }
 
   drawAltAzLines() {
@@ -554,7 +536,7 @@ class Drawer {
       }
     });
     if (this.AltAzLines) this.drawAltAzLines();
-    if (this.EqLines) this.drawEqLines();
+    if (this.EqLines) this.drawLines(JSONEQLines.lines);
     if (this.ConstellationsLines) this.drawConstellationsLines();
     if (this.Constellations)
       constellations.forEach((constellation) => {

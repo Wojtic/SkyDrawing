@@ -1,11 +1,3 @@
-function degToRad(deg) {
-  return deg * (Math.PI / 180.0);
-}
-
-function RadToDeg(deg) {
-  return deg * (180.0 / Math.PI);
-}
-
 class Observer {
   constructor(
     alt = 0,
