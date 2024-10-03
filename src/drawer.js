@@ -608,7 +608,7 @@ class Drawer {
     hvezdy.forEach((hvezda) => {
       if (
         hvezda.Mag < this.getMaximumMag() &&
-        (this.obs.CheckVisibility(hvezda.RA, hvezda.Dec) || true) // Fix!!
+        this.obs.CheckVisibility(hvezda.RA, hvezda.Dec) // Fix!!
       ) {
         this.drawStar(hvezda);
       }
