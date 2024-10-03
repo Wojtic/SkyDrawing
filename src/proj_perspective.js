@@ -42,12 +42,12 @@ Observer.prototype.StereographicAltAzToXY = function (alt, az) {
   const x = S.x / (1 - S.z);
   const y = S.y / (1 - S.z);
 
-  const factor = 0.93 * (degToRad(100) / this.fov);
+  const factor = 1.15 * (degToRad(100) / this.fov); // Very hacky, figure out the math!!
   return [x * factor, y * factor];
 };
 
 Observer.prototype.StereographicXYToAltAz = function (x, y) {
-  const factor = 0.93 * (degToRad(100) / this.fov);
+  const factor = 1.15 * (degToRad(100) / this.fov);
   x = x / factor;
   y = y / factor;
 
