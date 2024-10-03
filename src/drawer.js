@@ -14,6 +14,13 @@ class Drawer {
     this.canvas.height = height * window.devicePixelRatio;
     this.canvas.style.height = height + "px";
     this.canvas.style.width = width + "px";
+    this.colors = {
+      sky: "#070E17",
+      altAzLines: "#2BF0E6",
+      EQLines: "#F06F2B",
+      constellationLines: "#E0F02B",
+      constellationBoundaries: "#579E9B",
+    };
 
     div.appendChild(this.canvas);
 
@@ -311,8 +318,8 @@ class Drawer {
     );
   }
 
-  drawLines(lines) {
-    this.ctx.strokeStyle = "#808080";
+  drawLines(lines, color = "#808080") {
+    this.ctx.strokeStyle = color;
     this.ctx.beginPath();
     for (let i = 0; i < lines.length; i++) {
       this.drawLineRaDec(...lines[i]);
@@ -333,7 +340,10 @@ class Drawer {
         ...this.obs.RaDecToAltAz(...this.constellationPole),
         STEPS
       );
-      this.drawContinuousLineAltAz(stepsAltAz);
+      this.drawContinuousLineAltAz(
+        stepsAltAz,
+        this.colors.constellationBoundaries
+      );
     };
 
     const drawConstellationParallel = (ra1, dec1, ra2, dec2) => {
@@ -346,7 +356,10 @@ class Drawer {
         az2,
         ...this.obs.RaDecToAltAz(...this.constellationPole)
       );
-      this.drawContinuousLineAltAz(stepsAltAz);
+      this.drawContinuousLineAltAz(
+        stepsAltAz,
+        this.colors.constellationBoundaries
+      );
     };
 
     let boundary = constellation.boundary;
@@ -373,8 +386,8 @@ class Drawer {
     else drawConstellationParallel(...boundary[0], ...prev);
   }
 
-  drawContinuousLineAltAz(set) {
-    this.ctx.strokeStyle = "#808080";
+  drawContinuousLineAltAz(set, color = "#808080") {
+    this.ctx.strokeStyle = color;
     let [prevX, prevY] = this.obs.AltAzToXY(...set[0]);
     this.ctx.beginPath();
     for (let i = 1; i < set.length; i++) {
@@ -494,7 +507,7 @@ class Drawer {
   }
 
   drawConstellationLines(constellationLines) {
-    this.ctx.strokeStyle = "#808080";
+    this.ctx.strokeStyle = this.colors.constellationLines;
     this.ctx.beginPath();
     for (let i = 0; i < constellationLines.length; i++) {
       if (
@@ -538,7 +551,7 @@ class Drawer {
     const Altinterval = Math.PI / 18;
     const Azrez = (2 * Math.PI) / 48;
 
-    this.ctx.strokeStyle = "#808080";
+    this.ctx.strokeStyle = this.colors.altAzLines;
 
     for (let az = 0; az < 2 * Math.PI; az += Azinterval) {
       let [prevX, prevY] = this.obs.AltAzToXYWide(-Math.PI / 2, az);
@@ -603,7 +616,7 @@ class Drawer {
 
   draw() {
     this.ctx.clearRect(0, 0, this.width, this.height);
-    this.ctx.fillStyle = "#0a0026";
+    this.ctx.fillStyle = this.colors.sky; //"#0a0026";
     this.ctx.fillRect(0, 0, this.width, this.height);
     hvezdy.forEach((hvezda) => {
       if (
@@ -614,7 +627,7 @@ class Drawer {
       }
     });
     if (this.AltAzLines) this.drawAltAzLines();
-    if (this.EqLines) this.drawLines(JSONEQLines.lines);
+    if (this.EqLines) this.drawLines(JSONEQLines.lines, this.colors.EQLines);
     if (this.ConstellationsLines) this.drawConstellationsLines();
     if (this.Constellations)
       constellations.forEach((constellation) => {
