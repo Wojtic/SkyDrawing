@@ -33,6 +33,7 @@ class Drawer {
     this.EqLines = false;
     this.Constellations = false;
     this.ConstellationsLines = false;
+    this.StarColors = true;
     this.Debug = false;
 
     this.pinching = false;
@@ -95,6 +96,7 @@ class Drawer {
       [this.EqLines, "Eq Lines"],
       [this.Constellations, "Boundaries"],
       [this.ConstellationsLines, "Constellation Lines"],
+      [this.StarColors, "Star colors"],
       [this.Czech, "Czech Names"],
       [this.Debug, "Show Debug"],
     ];
@@ -113,7 +115,10 @@ class Drawer {
       this.ConstellationsLines = this.document.getElementsByName(
         btnsNames[4]
       )[0].checked;
-      let newCzech = this.document.getElementsByName(btnsNames[5])[0].checked;
+      this.StarColors = this.document.getElementsByName(
+        btnsNames[5]
+      )[0].checked;
+      let newCzech = this.document.getElementsByName(btnsNames[6])[0].checked;
       if (newCzech != this.Czech) {
         this.Czech = newCzech;
         if (this.constellationSelectionDiv) {
@@ -125,7 +130,7 @@ class Drawer {
           this.projectionSelection();
         }
       }
-      this.Debug = this.document.getElementsByName(btnsNames[6])[0].checked;
+      this.Debug = this.document.getElementsByName(btnsNames[7])[0].checked;
       this.draw();
     };
 
@@ -409,10 +414,83 @@ class Drawer {
     }
     const canX = this.width / 2 + x * this.width;
     const canY = this.height / 2 - y * this.height;
-    this.ctx.fillStyle = "#" + Math.round(brightness).toString(16).repeat(3);
+    this.ctx.fillStyle = this.starColor(brightness, star.ColorIndex);
     this.ctx.beginPath();
     this.ctx.arc(canX, canY, r, 0, 2 * Math.PI);
     this.ctx.fill();
+  }
+
+  starColor(brightness, colorIndex) {
+    colorIndex = parseFloat(colorIndex);
+    if (isNaN(colorIndex) || !this.StarColors) {
+      return "#" + Math.round(brightness).toString(16).repeat(3);
+    }
+    const [r, g, b] = this.bv2rgb(parseFloat(colorIndex));
+    return this.rgbToHex(r * brightness, g * brightness, b * brightness);
+  }
+
+  rgbToHex(r, g, b) {
+    const componentToHex = (c) => {
+      c = Math.round(c);
+      var hex = c.toString(16);
+      return hex.length == 1 ? "0" + hex : hex;
+    };
+    return "#" + componentToHex(r) + componentToHex(g) + componentToHex(b);
+  }
+
+  bv2rgb(bv) {
+    if (bv < -0.4) {
+      bv = -0.4;
+    }
+    if (bv > 2.0) {
+      bv = 2.0;
+    }
+
+    if (bv >= 2) {
+      return [1, 198 / 255, 109 / 255];
+    }
+
+    let r = 0.0;
+    let g = 0.0;
+    let b = 0.0;
+
+    if (-0.4 <= bv && bv < 0.0) {
+      let t = (bv + 0.4) / (0.0 + 0.4);
+      r = 0.61 + 0.11 * t + 0.1 * t * t;
+    } else if (0.0 <= bv && bv < 0.4) {
+      let t = (bv - 0.0) / (0.4 - 0.0);
+      r = 0.83 + 0.17 * t;
+    } else if (0.4 <= bv && bv < 2.1) {
+      let t = (bv - 0.4) / (2.1 - 0.4);
+      r = 1.0;
+    }
+
+    if (-0.4 <= bv && bv < 0.0) {
+      let t = (bv + 0.4) / (0.0 + 0.4);
+      g = 0.7 + 0.07 * t + 0.1 * t * t;
+    } else if (0.0 <= bv && bv < 0.4) {
+      let t = (bv - 0.0) / (0.4 - 0.0);
+      g = 0.87 + 0.11 * t;
+    } else if (0.4 <= bv && bv < 1.6) {
+      let t = (bv - 0.4) / (1.6 - 0.4);
+      g = 0.98 - 0.16 * t;
+    } else if (1.6 <= bv && bv < 2.0) {
+      let t = (bv - 1.6) / (2.0 - 1.6);
+      g = 0.82 - 0.5 * t * t;
+    }
+
+    if (-0.4 <= bv && bv < 0.4) {
+      let t = (bv + 0.4) / (0.4 + 0.4);
+      b = 1.0;
+    } else if (0.4 <= bv && bv < 1.5) {
+      let t = (bv - 0.4) / (1.5 - 0.4);
+      b = 1.0 - 0.47 * t + 0.1 * t * t;
+    } else if (1.5 <= bv && bv < 1.94) {
+      let t = (bv - 1.5) / (1.94 - 1.5);
+      b = 0.63 - 0.6 * t * t;
+    }
+
+    return [r, g, b];
   }
 
   drawConstellationLines(constellationLines) {
@@ -530,7 +608,7 @@ class Drawer {
     hvezdy.forEach((hvezda) => {
       if (
         hvezda.Mag < this.getMaximumMag() &&
-        this.obs.CheckVisibility(hvezda.RA, hvezda.Dec)
+        (this.obs.CheckVisibility(hvezda.RA, hvezda.Dec) || true) // Fix!!
       ) {
         this.drawStar(hvezda);
       }
