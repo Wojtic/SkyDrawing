@@ -29,18 +29,18 @@ class Drawer {
     this.width = width * window.devicePixelRatio;
     this.height = height * window.devicePixelRatio;
 
-    this.obs = new Observer(0, 0, 120, 50.07, 14.12);
+    this.obs = new Observer(90, 0, 280, 90, 0);
     this.MAXFOV = 230; // 120 for perspective
 
     this.ConstellationsToDraw = [];
 
     this.Czech = true;
-    this.Horizon = true;
+    this.Horizon = false;
     this.AltAzLines = false;
     this.EqLines = false;
     this.Constellations = false;
     this.ConstellationsLines = false;
-    this.StarColors = true;
+    this.StarColors = false;
     this.Debug = false;
 
     this.pinching = false;
@@ -407,14 +407,14 @@ class Drawer {
     if (!(x > -0.5 && x < 0.5 && y > -0.5 && y < 0.5)) return;
 
     //let mediumMag = maximumMag - 3.366; // Such that star of maximumMag has brightness 10
-    let mediumMag = maximumMag - 2;
+    let mediumMag = maximumMag - 3.0;
     let brightness;
     let r;
     if (star.Mag < mediumMag) {
-      r = Math.cbrt(2.5 ** (mediumMag - star.Mag)); // Should be sqrt, but stars are too large
+      r = 1.5 * Math.cbrt(2.5 ** (mediumMag - star.Mag)); // Should be sqrt, but stars are too large
       brightness = 255;
     } else {
-      r = 1;
+      r = 0;
       brightness = 255 / 2.5 ** (star.Mag - mediumMag);
     }
 
@@ -618,14 +618,6 @@ class Drawer {
     this.ctx.clearRect(0, 0, this.width, this.height);
     this.ctx.fillStyle = this.colors.sky; //"#0a0026";
     this.ctx.fillRect(0, 0, this.width, this.height);
-    hvezdy.forEach((hvezda) => {
-      if (
-        hvezda.Mag < this.getMaximumMag() &&
-        this.obs.CheckVisibility(hvezda.RA, hvezda.Dec) // Fix!!
-      ) {
-        this.drawStar(hvezda);
-      }
-    });
     if (this.AltAzLines) this.drawAltAzLines();
     if (this.EqLines) this.drawLines(JSONEQLines.lines, this.colors.EQLines);
     if (this.ConstellationsLines) this.drawConstellationsLines();
@@ -639,5 +631,16 @@ class Drawer {
       });
     if (this.Debug) this.writeDebug();
     else this.document.querySelector(".dbg").innerHTML = "";
+
+    this.drawConstellation(constellations[61]);
+
+    hvezdy.forEach((hvezda) => {
+      if (
+        hvezda.Mag < this.getMaximumMag() &&
+        this.obs.CheckVisibility(hvezda.RA, hvezda.Dec) // Fix!!
+      ) {
+        this.drawStar(hvezda);
+      }
+    });
   }
 }
