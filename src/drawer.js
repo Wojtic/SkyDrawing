@@ -45,6 +45,7 @@ class Drawer {
 
     this.pinching = false;
     this.lastPinchDist = null;
+    this.updateMaximumMag();
 
     [this.lastX, this.lastY] = [null, null];
     this.bindInput();
@@ -291,14 +292,21 @@ class Drawer {
         };
   }
 
-  getMaximumMag() {
-    //const maximumMag = 2.5 / this.obs.fov + 6; // fov 140 - 7; 90 - 7.5
-    return (
-      -0.8 * this.obs.fov +
-      8.4 -
-      2 +
-      Math.min(this.width, this.height) / (window.devicePixelRatio * 500)
-    );
+  updateMaximumMag() {
+    let sliders = this.document.getElementsByClassName("maxMAG");
+    
+    if (sliders.length > 0) this.maximumMag = sliders[0].value;
+    else {   
+      //const maximumMag = 2.5 / this.obs.fov + 6; // fov 140 - 7; 90 - 7.5
+      this.maximumMag = (
+        -0.8 * this.obs.fov +
+        8.4 -
+        2 +
+        Math.min(this.width, this.height) / (window.devicePixelRatio * 500)
+      );
+    } 
+
+    return this.maximumMag;
   }
 
   drawLine(x1, y1, x2, y2) {
@@ -399,15 +407,14 @@ class Drawer {
   }
 
   drawStar(star) {
-    const maximumMag = this.getMaximumMag();
-    if (star.Mag > maximumMag) return;
+    if (star.Mag > this.maximumMag) return;
     const [alt, az] = this.obs.RaDecToAltAz(star.RA, star.Dec);
     const [x, y] = this.obs.AltAzToXY(alt, az);
     if (x == null || y == null) return;
     if (!(x > -0.5 && x < 0.5 && y > -0.5 && y < 0.5)) return;
 
     //let mediumMag = maximumMag - 3.366; // Such that star of maximumMag has brightness 10
-    let mediumMag = maximumMag - 2;
+    let mediumMag = this.maximumMag - 2;
     let brightness;
     let r;
     if (star.Mag < mediumMag) {
@@ -615,12 +622,13 @@ class Drawer {
   }
 
   draw() {
+    this.updateMaximumMag();
     this.ctx.clearRect(0, 0, this.width, this.height);
     this.ctx.fillStyle = this.colors.sky; //"#0a0026";
     this.ctx.fillRect(0, 0, this.width, this.height);
     hvezdy.forEach((hvezda) => {
       if (
-        hvezda.Mag < this.getMaximumMag() &&
+        hvezda.Mag < this.maximumMag &&
         this.obs.CheckVisibility(hvezda.RA, hvezda.Dec) // Fix!!
       ) {
         this.drawStar(hvezda);
