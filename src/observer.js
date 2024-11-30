@@ -17,6 +17,7 @@ class Observer {
       date: date,
       projection: projection,
     });
+    this.lastChanged = new Date();
   }
 
   ChangeSettings({
@@ -31,6 +32,9 @@ class Observer {
     this.alt = alt; //-pi/2 to pi/2
     this.az = az; //0 to 2pi
     this.fov = fov;
+
+    if (this.date != date || this.lat != lat || this.long != long)
+      this.lastChanged = new Date(); // Need to recalculate coords
 
     this.lat = lat;
     this.long = long; // east is positive

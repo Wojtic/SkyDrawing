@@ -294,17 +294,16 @@ class Drawer {
 
   updateMaximumMag() {
     let sliders = this.document.getElementsByClassName("maxMAG");
-    
+
     if (sliders.length > 0) this.maximumMag = sliders[0].value;
-    else {   
+    else {
       //const maximumMag = 2.5 / this.obs.fov + 6; // fov 140 - 7; 90 - 7.5
-      this.maximumMag = (
+      this.maximumMag =
         -0.8 * this.obs.fov +
         8.4 -
         2 +
-        Math.min(this.width, this.height) / (window.devicePixelRatio * 500)
-      );
-    } 
+        Math.min(this.width, this.height) / (window.devicePixelRatio * 500);
+    }
 
     return this.maximumMag;
   }
@@ -408,8 +407,11 @@ class Drawer {
 
   drawStar(star) {
     if (star.Mag > this.maximumMag) return;
-    const [alt, az] = this.obs.RaDecToAltAz(star.RA, star.Dec);
-    const [x, y] = this.obs.AltAzToXY(alt, az);
+    if (star.changed == undefined || star.changed < this.obs.lastChanged) {
+      star.changed = new Date();
+      [star.alt, star.az] = this.obs.RaDecToAltAz(star.RA, star.Dec);
+    }
+    const [x, y] = this.obs.AltAzToXY(star.alt, star.az);
     if (x == null || y == null) return;
     if (!(x > -0.5 && x < 0.5 && y > -0.5 && y < 0.5)) return;
 
@@ -425,7 +427,7 @@ class Drawer {
       brightness = 255 / 2.5 ** (star.Mag - mediumMag);
     }
 
-    if (this.Horizon && alt < 0) {
+    if (this.Horizon && star.alt < 0) {
       if (r > 1) {
         brightness *= 0.5;
       } else {
