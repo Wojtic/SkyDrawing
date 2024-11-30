@@ -292,17 +292,27 @@ class Drawer {
         };
   }
 
+  FOVtoMaximumMag(FOV = this.obs.fov) {
+    this.maximumMag =
+      -6.7128 / (1 + Math.exp(-0.0641831 * RadToDeg(FOV) + 1.39443)) + 13.698;
+    return this.maximumMag;
+  }
+
   updateMaximumMag() {
     let sliders = this.document.getElementsByClassName("maxMAG");
 
     if (sliders.length > 0) this.maximumMag = sliders[0].value;
     else {
       //const maximumMag = 2.5 / this.obs.fov + 6; // fov 140 - 7; 90 - 7.5
-      this.maximumMag =
+      /*this.maximumMag =
         -0.8 * this.obs.fov +
         8.4 -
         2 +
-        Math.min(this.width, this.height) / (window.devicePixelRatio * 500);
+        Math.min(this.width, this.height) / (window.devicePixelRatio * 500);*/
+    }
+
+    if (true) {
+      this.FOVtoMaximumMag();
     }
 
     return this.maximumMag;
