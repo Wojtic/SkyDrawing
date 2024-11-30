@@ -29,7 +29,7 @@ class Drawer {
     this.width = width * window.devicePixelRatio;
     this.height = height * window.devicePixelRatio;
 
-    this.obs = new Observer(90, 0, 280, 90, 0);
+    this.obs = new Observer(90, 0, 280, 90, 0, new Date("2000-01-01T00:00:01"));
     this.MAXFOV = 230; // 120 for perspective
 
     this.ConstellationsToDraw = [];
@@ -407,11 +407,11 @@ class Drawer {
     if (!(x > -0.5 && x < 0.5 && y > -0.5 && y < 0.5)) return;
 
     //let mediumMag = maximumMag - 3.366; // Such that star of maximumMag has brightness 10
-    let mediumMag = maximumMag - 3.0;
+    let mediumMag = maximumMag - 3.366;
     let brightness;
     let r;
     if (star.Mag < mediumMag) {
-      r = 1.5 * Math.cbrt(2.5 ** (mediumMag - star.Mag)); // Should be sqrt, but stars are too large
+      r = 3 * Math.cbrt(2.5 ** (mediumMag - star.Mag)); // Should be sqrt, but stars are too large
       brightness = 255;
     } else {
       r = 0;
