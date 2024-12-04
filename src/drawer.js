@@ -1,5 +1,27 @@
 class Drawer {
-  constructor(document, div, width, height) {
+  constructor(
+    document,
+    div,
+    {
+      width = 100,
+      height = 100,
+      latitude = 0,
+      longitude = 0,
+      altitude = 0,
+      azimuth = 0,
+      fov = 120,
+      horizon = true,
+      starColors = true,
+      boundaries = false,
+      colors = {
+        sky: "#070E17",
+        altAzLines: "#2BF0E6",
+        EQLines: "#F06F2B",
+        constellationLines: "#E0F02B",
+        constellationBoundaries: "#579E9B",
+      },
+    }
+  ) {
     this.dots = [];
 
     this.constellationPole = [12.053442491471836, 89.30386569273892]; // this.obs.getConstellationPole();
@@ -14,13 +36,7 @@ class Drawer {
     this.canvas.height = height * window.devicePixelRatio;
     this.canvas.style.height = height + "px";
     this.canvas.style.width = width + "px";
-    this.colors = {
-      sky: "#070E17",
-      altAzLines: "#2BF0E6",
-      EQLines: "#F06F2B",
-      constellationLines: "#E0F02B",
-      constellationBoundaries: "#579E9B",
-    };
+    this.colors = colors;
 
     div.appendChild(this.canvas);
 
@@ -29,18 +45,18 @@ class Drawer {
     this.width = width * window.devicePixelRatio;
     this.height = height * window.devicePixelRatio;
 
-    this.obs = new Observer(0, 0, 120, 50.07, 14.12);
+    this.obs = new Observer(altitude, azimuth, fov, latitude, longitude);
     this.MAXFOV = 230; // 120 for perspective
 
     this.ConstellationsToDraw = [];
 
     this.Czech = true;
-    this.Horizon = true;
+    this.Horizon = horizon;
     this.AltAzLines = false;
     this.EqLines = false;
-    this.Constellations = false;
+    this.Constellations = boundaries;
     this.ConstellationsLines = false;
-    this.StarColors = true;
+    this.StarColors = starColors;
     this.Debug = false;
 
     this.pinching = false;
@@ -455,6 +471,7 @@ class Drawer {
   starColor(brightness, colorIndex) {
     colorIndex = parseFloat(colorIndex);
     if (isNaN(colorIndex) || !this.StarColors) {
+      if (this.colors.stars) return this.colors.stars;
       return "#" + Math.round(brightness).toString(16).repeat(3);
     }
     const [r, g, b] = this.bv2rgb(parseFloat(colorIndex));
