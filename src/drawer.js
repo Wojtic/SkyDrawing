@@ -659,14 +659,14 @@ class Drawer {
     this.ctx.clearRect(0, 0, this.width, this.height);
     this.ctx.fillStyle = this.colors.sky; //"#0a0026";
     this.ctx.fillRect(0, 0, this.width, this.height);
-    hvezdy.forEach((hvezda) => {
+    for (let i = hvezdy.length - 1; i >= 0; i--) {
       if (
-        hvezda.Mag < this.maximumMag &&
-        this.obs.CheckVisibility(hvezda.RA, hvezda.Dec) // Fix!!
+        hvezdy[i].Mag < this.maximumMag &&
+        this.obs.CheckVisibility(hvezdy[i].RA, hvezdy[i].Dec) // Fix!!
       ) {
-        this.drawStar(hvezda);
+        this.drawStar(hvezdy[i]);
       }
-    });
+    }
     if (this.AltAzLines) this.drawAltAzLines();
     if (this.EqLines) this.drawLines(JSONEQLines.lines, this.colors.EQLines);
     if (this.ConstellationsLines) this.drawConstellationsLines();
