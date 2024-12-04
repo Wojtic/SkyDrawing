@@ -13,6 +13,7 @@ class Drawer {
       horizon = true,
       starColors = true,
       boundaries = false,
+      maximumMag,
       colors = {
         sky: "#070E17",
         altAzLines: "#2BF0E6",
@@ -58,6 +59,9 @@ class Drawer {
     this.ConstellationsLines = false;
     this.StarColors = starColors;
     this.Debug = false;
+
+    this.calculateMaximumMag = maximumMag == undefined;
+    if (!this.calculateMaximumMag) this.maximumMag = maximumMag;
 
     this.pinching = false;
     this.lastPinchDist = null;
@@ -317,7 +321,7 @@ class Drawer {
   updateMaximumMag() {
     let sliders = this.document.getElementsByClassName("maxMAG");
 
-    if (sliders.length > 0) this.maximumMag = sliders[0].value;
+    /*if (sliders.length > 0) this.maximumMag = sliders[0].value;
     else {
       //const maximumMag = 2.5 / this.obs.fov + 6; // fov 140 - 7; 90 - 7.5
       /*this.maximumMag =
@@ -325,9 +329,9 @@ class Drawer {
         8.4 -
         2 +
         Math.min(this.width, this.height) / (window.devicePixelRatio * 500);*/
-    }
+    //}
 
-    if (true) {
+    if (this.calculateMaximumMag) {
       this.FOVtoMaximumMag();
     }
 

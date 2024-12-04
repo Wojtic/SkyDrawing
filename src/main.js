@@ -16,6 +16,7 @@ const laserSettings = {
   horizon: false,
   starColors: false,
   boundaries: true,
+  maximumMag: 10,
   colors: {
     sky: "#FFFFFF",
     altAzLines: "#2BF0E6",
