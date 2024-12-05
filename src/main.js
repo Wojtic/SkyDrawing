@@ -3,6 +3,8 @@ const size = Math.min(document.body.clientHeight, document.body.clientWidth);
 const settings = {
   width: size,
   height: size,
+  latitude: 50,
+  longitude: 14,
 };
 
 const laserSettings = {
@@ -17,6 +19,7 @@ const laserSettings = {
   starColors: false,
   boundaries: true,
   maximumMag: 10,
+  projection: "lambert",
   colors: {
     sky: "#FFFFFF",
     altAzLines: "#2BF0E6",

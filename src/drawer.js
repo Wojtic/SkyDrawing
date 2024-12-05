@@ -13,6 +13,8 @@ class Drawer {
       horizon = true,
       starColors = true,
       boundaries = false,
+      projection = "stereographic",
+      date = new Date(),
       maximumMag,
       colors = {
         sky: "#070E17",
@@ -46,7 +48,15 @@ class Drawer {
     this.width = width * window.devicePixelRatio;
     this.height = height * window.devicePixelRatio;
 
-    this.obs = new Observer(altitude, azimuth, fov, latitude, longitude);
+    this.obs = new Observer(
+      altitude,
+      azimuth,
+      fov,
+      latitude,
+      longitude,
+      date,
+      projection
+    );
     this.MAXFOV = 230; // 120 for perspective
 
     this.ConstellationsToDraw = [];
