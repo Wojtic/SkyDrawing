@@ -222,6 +222,8 @@ class Observer {
         return this.PerspectiveAltAzToXY(alt, az);
       case "stereographic":
         return this.StereographicAltAzToXY(alt, az);
+      case "lambert":
+        return this.LambertAltAzToXY(alt, az);
       default:
         return this.StereographicAltAzToXY(alt, az);
     }
@@ -233,6 +235,8 @@ class Observer {
         return this.PerspectiveXYToAltAz(x, y);
       case "stereographic":
         return this.StereographicXYToAltAz(x, y);
+      case "lambert":
+        return this.LambertXYToAltAz(x, y);
       default:
         return this.StereographicXYToAltAz(x, y);
     }
@@ -389,6 +393,8 @@ class Observer {
   // For intellisense
   StereographicAltAzToXY(alt, az) {}
   PerspectiveAltAzToXY(alt, az) {}
+  LambertAltAzToXY(alt, az) {}
   PerspectiveXYToAltAz(x, y) {}
   StereographicXYToAltAz(x, y) {}
+  LambertXYToAltAz(x, y) {}
 }

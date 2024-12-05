@@ -97,7 +97,7 @@ class Drawer {
     const btn = this.document.createElement("button");
     btn.innerHTML = "Change";
 
-    const options = ["stereographic", "perspective"];
+    const options = ["stereographic", "perspective", "lambert"];
 
     options.forEach((option) => {
       let opt = this.document.createElement("option");
@@ -110,7 +110,11 @@ class Drawer {
 
     btn.onclick = (e) => {
       this.obs.projection = options[select.selectedIndex];
-      this.MAXFOV = this.obs.projection == "stereographic" ? 230 : 120;
+      this.MAXFOV =
+        this.obs.projection == "stereographic" ||
+        this.obs.projection == "lambert"
+          ? 280
+          : 120;
       if (this.obs.fov > degToRad(this.MAXFOV))
         this.obs.ChangeSettings({ fov: degToRad(this.MAXFOV) });
       this.draw();

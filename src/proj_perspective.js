@@ -64,3 +64,38 @@ Observer.prototype.StereographicXYToAltAz = function (x, y) {
     .multiply(-1);
   return this.VectorToAltAz(S);
 };
+
+Observer.prototype.LambertAltAzToXY = function (alt, az) {
+  // Inefficient (everything is)
+  const S = this.AltAzToVector(alt, az)
+    .multiply(-1)
+    .rotateAround(this.Odir, -this.az + Math.PI / 2)
+    .rotateAround(
+      new Vector(0, 0, -1).cross(this.Odir),
+      Math.PI / 2 - this.alt
+    );
+  const x = S.x * Math.sqrt(2 / (1 - S.z));
+  const y = S.y * Math.sqrt(2 / (1 - S.z));
+
+  const factor = 1.15 * (degToRad(100) / this.fov); // Very hacky, figure out the math!!
+  return [x * factor, y * factor];
+};
+
+Observer.prototype.LambertXYToAltAz = function (x, y) {
+  const factor = 1.15 * (degToRad(100) / this.fov);
+  x = x / factor;
+  y = y / factor;
+
+  const S = new Vector(
+    x * Math.sqrt(1 - (x * x + y * y) / 4),
+    y * Math.sqrt(1 - (x * x + y * y) / 4),
+    -1 + (x * x + y * y) / 4
+  )
+    .rotateAround(
+      new Vector(0, 0, -1).cross(this.Odir),
+      -(Math.PI / 2 - this.alt)
+    )
+    .rotateAround(this.Odir, -(-this.az + Math.PI / 2))
+    .multiply(-1);
+  return this.VectorToAltAz(S);
+};
