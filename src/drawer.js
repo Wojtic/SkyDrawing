@@ -33,20 +33,26 @@ class Drawer {
     this.projectionSelectionDiv = null;
 
     this.document = document;
+
+    this.width = width * window.devicePixelRatio;
+    this.height = height * window.devicePixelRatio;
+
+    this.svg = this.getNode("svg", { width: this.width, height: this.height });
+    div.appendChild(this.svg);
+
     this.canvas = document.createElement("canvas");
     this.canvas.id = "mainCan";
-    this.canvas.width = width * window.devicePixelRatio;
-    this.canvas.height = height * window.devicePixelRatio;
+    this.canvas.width = this.width;
+    this.canvas.height = this.height;
     this.canvas.style.height = height + "px";
     this.canvas.style.width = width + "px";
     this.colors = colors;
 
+    this.svg.style.backgroundColor = this.colors.sky;
+
     div.appendChild(this.canvas);
 
     this.ctx = this.canvas.getContext("2d");
-
-    this.width = width * window.devicePixelRatio;
-    this.height = height * window.devicePixelRatio;
 
     this.obs = new Observer(
       altitude,
@@ -79,7 +85,27 @@ class Drawer {
 
     [this.lastX, this.lastY] = [null, null];
     this.bindInput();
+
+    this.lastSetColor = "#FFFFFF";
     this.draw();
+  }
+
+  getNode(n, v) {
+    n = this.document.createElementNS("http://www.w3.org/2000/svg", n);
+    for (var p in v)
+      n.setAttributeNS(
+        null,
+        p.replace(/[A-Z]/g, function (m, p, o, s) {
+          return "-" + m.toLowerCase();
+        }),
+        v[p]
+      );
+    return n;
+  }
+
+  addNode(n, v) {
+    let node = this.getNode(n, v);
+    this.svg.appendChild(node);
   }
 
   constellationSelection(div = this.constellationSelectionDiv) {
@@ -358,6 +384,15 @@ class Drawer {
     const canY1 = this.height / 2 - y1 * this.height;
     const canX2 = this.width / 2 + x2 * this.width;
     const canY2 = this.height / 2 - y2 * this.height;
+    this.svg.appendChild(
+      this.getNode("line", {
+        x1: canX1,
+        y1: canY1,
+        x2: canX2,
+        y2: canY2,
+        stroke: this.lastSetColor,
+      })
+    );
     this.ctx.moveTo(canX1, canY1);
     this.ctx.lineTo(canX2, canY2);
   }
@@ -371,6 +406,7 @@ class Drawer {
 
   drawLines(lines, color = "#808080") {
     this.ctx.strokeStyle = color;
+    this.lastSetColor = color;
     this.ctx.beginPath();
     for (let i = 0; i < lines.length; i++) {
       this.drawLineRaDec(...lines[i]);
@@ -439,13 +475,23 @@ class Drawer {
 
   drawContinuousLineAltAz(set, color = "#808080") {
     this.ctx.strokeStyle = color;
+    this.lastSetColor = color;
     let [prevX, prevY] = this.obs.AltAzToXY(...set[0]);
     this.ctx.beginPath();
+    let points = "";
     for (let i = 1; i < set.length; i++) {
       let [newX, newY] = this.obs.AltAzToXY(...set[i]);
-      this.drawLine(prevX, prevY, newX, newY);
+      const canX = this.width / 2 + prevX * this.width;
+      const canY = this.height / 2 - prevY * this.height;
+      if (prevX !== null && prevY !== null) points += canX + "," + canY + " ";
+      //this.drawLine(prevX, prevY, newX, newY);
       [prevX, prevY] = [newX, newY];
     }
+    const canX = this.width / 2 + prevX * this.width;
+    const canY = this.height / 2 - prevY * this.height;
+    if (prevX !== null && prevY !== null) points += canX + "," + canY + " ";
+    console.log(points);
+    this.addNode("polyline", { points: points, stroke: color });
     this.ctx.stroke();
   }
 
@@ -481,6 +527,12 @@ class Drawer {
     const canX = this.width / 2 + x * this.width;
     const canY = this.height / 2 - y * this.height;
     this.ctx.fillStyle = this.starColor(brightness, star.ColorIndex);
+    this.addNode("circle", {
+      r: r,
+      cx: canX,
+      cy: canY,
+      fill: this.starColor(brightness, star.ColorIndex),
+    });
     this.ctx.beginPath();
     this.ctx.arc(canX, canY, r, 0, 2 * Math.PI);
     this.ctx.fill();
@@ -562,6 +614,7 @@ class Drawer {
 
   drawConstellationLines(constellationLines) {
     this.ctx.strokeStyle = this.colors.constellationLines;
+    this.lastSetColor = this.colors.constellationLines;
     this.ctx.beginPath();
     for (let i = 0; i < constellationLines.length; i++) {
       if (
@@ -606,6 +659,7 @@ class Drawer {
     const Azrez = (2 * Math.PI) / 48;
 
     this.ctx.strokeStyle = this.colors.altAzLines;
+    this.lastSetColor = this.colors.altAzLines;
 
     for (let az = 0; az < 2 * Math.PI; az += Azinterval) {
       let [prevX, prevY] = this.obs.AltAzToXYWide(-Math.PI / 2, az);
@@ -670,6 +724,8 @@ class Drawer {
 
   draw() {
     this.updateMaximumMag();
+    this.svg.textContent = ""; // vs innerHTML test performance
+
     this.ctx.clearRect(0, 0, this.width, this.height);
     this.ctx.fillStyle = this.colors.sky; //"#0a0026";
     this.ctx.fillRect(0, 0, this.width, this.height);
