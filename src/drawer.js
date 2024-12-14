@@ -273,6 +273,7 @@ class Drawer {
       let [x, y] = getXYFromEvent(e);
       let [alt, az] = this.obs.XYToAltAz(x, y);
       let [RA, DEC] = this.obs.AltAzToRaDec(alt, az);
+      console.log(this.findVisibleStars(RA, DEC));
       /*console.log(alt, az);
       console.log("RA: ", RadToDeg(RA) / 15, "Dec: ", RadToDeg(DEC));
       console.log(RadToDeg(this.obs.CalculateDistanceRaDec(RA, DEC)));*/
@@ -689,6 +690,23 @@ class Drawer {
     this.draw();
   }
 
+  findVisibleStars(ra, dec, r = this.obs.fov / 100) {
+    let foundStars = [];
+    for (let i = hvezdy.length - 1; i >= 0; i--) {
+      if (hvezdy[i].Mag > this.maximumMag) continue;
+      if (
+        this.obs.CalculateDistanceRaDec(
+          ra,
+          dec,
+          degToRad(hvezdy[i].RA * 15),
+          degToRad(hvezdy[i].Dec)
+        ) < r
+      )
+        foundStars.push(hvezdy[i]);
+    }
+    return foundStars;
+  }
+
   writeDebug() {
     this.document.querySelector(".dbg").innerHTML = JSON.stringify(
       this.obs.GetDebug()
@@ -702,10 +720,13 @@ class Drawer {
 
       const canX = this.width / 2 + x * this.width;
       const canY = this.height / 2 - y * this.height;
-      this.ctx.fillStyle = "#FF0000";
-      this.ctx.beginPath();
-      this.ctx.arc(canX, canY, 5, 0, 2 * Math.PI);
-      this.ctx.fill();
+      this.findVisibleStars(...this.dots[i]);
+      this.addNode("circle", {
+        r: 5,
+        cx: canX,
+        cy: canY,
+        fill: "#FF0000",
+      });
     }*/
   }
 
