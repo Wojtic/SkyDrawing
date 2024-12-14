@@ -98,6 +98,35 @@ class Drawer {
     this.svg.appendChild(node);
   }
 
+  drawPolyline(points, color = "#808080") {
+    let set = [];
+    for (let i = 0; i < points.length; i++) {
+      if (points[i][0] != null && points[i][1] != null) {
+        set.push(this.XYtoCanvas(...points[i]));
+      } else {
+        if (set.length > 0) {
+          this.addNode("polyline", {
+            points: set,
+            stroke: color,
+            fill: "none",
+          });
+        }
+        set = [];
+      }
+    }
+    if (set.length > 0) {
+      this.addNode("polyline", {
+        points: set,
+        stroke: color,
+        fill: "none",
+      });
+    }
+  }
+
+  XYtoCanvas(x, y) {
+    return [this.width / 2 + x * this.width, this.height / 2 - y * this.height];
+  }
+
   constellationSelection(div = this.constellationSelectionDiv) {
     this.constellationSelectionDiv = div;
     const select = this.document.createElement("select");
@@ -371,10 +400,8 @@ class Drawer {
 
   drawLine(x1, y1, x2, y2) {
     if (x1 == null || y1 == null || x2 == null || y2 == null) return;
-    const canX1 = this.width / 2 + x1 * this.width;
-    const canY1 = this.height / 2 - y1 * this.height;
-    const canX2 = this.width / 2 + x2 * this.width;
-    const canY2 = this.height / 2 - y2 * this.height;
+    const [canX1, canY1] = this.XYtoCanvas(x1, y1);
+    const [canX2, canY2] = this.XYtoCanvas(x2, y2);
     this.svg.appendChild(
       this.getNode("line", {
         x1: canX1,
@@ -401,6 +428,8 @@ class Drawer {
   }
 
   drawConstellation(constellation) {
+    const points = [];
+
     const drawConstellationMeridian = (ra1, dec1, ra2, dec2) => {
       const STEPS = 3;
       const [alt1, az1] = this.obs.RaDecToAltAz(ra1, dec1);
@@ -415,7 +444,8 @@ class Drawer {
       );
       this.drawContinuousLineAltAz(
         stepsAltAz,
-        this.colors.constellationBoundaries
+        this.colors.constellationBoundaries,
+        points
       );
     };
 
@@ -431,13 +461,14 @@ class Drawer {
       );
       this.drawContinuousLineAltAz(
         stepsAltAz,
-        this.colors.constellationBoundaries
+        this.colors.constellationBoundaries,
+        points
       );
     };
 
     let boundary = constellation.boundary;
-    let prev = boundary[0];
-    for (let i = 1; i < boundary.length; i++) {
+    let prev = boundary[boundary.length - 1];
+    for (let i = 0; i < boundary.length; i++) {
       let newLine = boundary[i];
       const diffRA =
         Math.min(
@@ -449,26 +480,24 @@ class Drawer {
       else drawConstellationParallel(...prev, ...newLine);
       prev = newLine;
     }
-    const diffRA =
-      Math.min(
-        Math.abs(prev[0] - boundary[0][0]),
-        Math.abs(prev[0] + 24 - boundary[0][0])
-      ) / 24;
-    const diffDEC = Math.abs(prev[1] - boundary[0][1]) / 180;
-    if (diffRA < diffDEC) drawConstellationMeridian(...boundary[0], ...prev);
-    else drawConstellationParallel(...boundary[0], ...prev);
+
+    this.drawPolyline(points, this.colors.constellationBoundaries);
   }
 
-  drawContinuousLineAltAz(set, color = "#808080") {
+  drawContinuousLineAltAz(set, color = "#808080", returnPoints = null) {
     this.lastSetColor = color;
     let points = "";
     for (let i = 0; i < set.length; i++) {
       var [newX, newY] = this.obs.AltAzToXY(...set[i]);
-      const canX = this.width / 2 + newX * this.width;
-      const canY = this.height / 2 - newY * this.height;
-      if (newX !== null && newY !== null) points += canX + "," + canY + " ";
+      if (returnPoints !== null) {
+        returnPoints.push([newX, newY]);
+      } else {
+        const [canX, canY] = this.XYtoCanvas(newX, newY);
+        if (newX !== null && newY !== null) points += canX + "," + canY + " ";
+      }
     }
-    this.addNode("polyline", { points: points, stroke: color, fill: "none" });
+    if (returnPoints == null)
+      this.addNode("polyline", { points: points, stroke: color, fill: "none" });
   }
 
   drawStar(star) {
@@ -500,8 +529,7 @@ class Drawer {
         brightness = Math.min(brightness, 5);
       }
     }
-    const canX = this.width / 2 + x * this.width;
-    const canY = this.height / 2 - y * this.height;
+    const [canX, canY] = this.XYtoCanvas(x, y);
     this.addNode("circle", {
       r: r,
       cx: canX,
@@ -630,27 +658,22 @@ class Drawer {
     this.lastSetColor = this.colors.altAzLines;
 
     for (let az = 0; az < 2 * Math.PI; az += Azinterval) {
-      let [prevX, prevY] = this.obs.AltAzToXYWide(-Math.PI / 2, az);
-      for (
-        let alt = -Math.PI / 2 + Altrez;
-        alt <= Math.PI / 2 + 0.01; // Dirty fix for rounding issue, refactor
-        alt += Altrez
-      ) {
-        let [newX, newY] = this.obs.AltAzToXYWide(alt, az);
-        this.drawLine(prevX, prevY, newX, newY); // Rewrite to polyline
-        [prevX, prevY] = [newX, newY];
+      let points = [];
+      // Dirty fix for rounding issue, refactor
+      for (let alt = -Math.PI / 2; alt <= Math.PI / 2 + 0.01; alt += Altrez) {
+        points.push(this.obs.AltAzToXYWide(alt, az));
       }
+      this.drawPolyline(points, this.colors.altAzLines);
     }
 
     for (let alt = -Math.PI / 2; alt < Math.PI / 2; alt += Altinterval) {
-      let [prevX, prevY] = this.obs.AltAzToXYWide(alt, 0);
+      let points = [];
       //this.ctx.lineWidth = 1;
       //if (this.round5(alt) == 0) this.ctx.lineWidth = 2;
-      for (let az = Azrez; az <= 2 * Math.PI + Azrez; az += Azrez) {
-        let [newX, newY] = this.obs.AltAzToXYWide(alt, az);
-        this.drawLine(prevX, prevY, newX, newY);
-        [prevX, prevY] = [newX, newY];
+      for (let az = 0; az <= 2 * Math.PI + Azrez; az += Azrez) {
+        points.push(this.obs.AltAzToXYWide(alt, az));
       }
+      this.drawPolyline(points, this.colors.altAzLines);
     }
   }
 
