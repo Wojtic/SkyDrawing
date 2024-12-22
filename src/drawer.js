@@ -78,6 +78,8 @@ class Drawer {
 
     this.lastSetColor = "#FFFFFF";
     this.draw();
+
+    this.selectedStars = [];
   }
 
   getNode(n, v) {
@@ -273,11 +275,9 @@ class Drawer {
       let [x, y] = getXYFromEvent(e);
       let [alt, az] = this.obs.XYToAltAz(x, y);
       let [RA, DEC] = this.obs.AltAzToRaDec(alt, az);
-      this.selectedStar = this.findVisibleStars(RA, DEC);
-      console.log(this.selectedStar);
-      /*console.log(alt, az);
-      console.log("RA: ", RadToDeg(RA) / 15, "Dec: ", RadToDeg(DEC));
-      console.log(RadToDeg(this.obs.CalculateDistanceRaDec(RA, DEC)));*/
+      const foundStars = this.findVisibleStars(RA, DEC);
+      if (foundStars.length > 0) this.selectedStars.push(foundStars[0].StarID);
+      console.log(this.selectedStars);
       this.dots.push([RadToDeg(RA) / 15, RadToDeg(DEC)]);
       this.draw();
     };
@@ -560,20 +560,10 @@ class Drawer {
   }
 
   bv2rgb(bv) {
-    if (bv < -0.4) {
-      bv = -0.4;
-    }
-    if (bv > 2.0) {
-      bv = 2.0;
-    }
-
-    if (bv >= 2) {
-      return [1, 198 / 255, 109 / 255];
-    }
-
-    let r = 0.0;
-    let g = 0.0;
-    let b = 0.0;
+    if (bv < -0.4) bv = -0.4;
+    if (bv > 2.0) bv = 2.0;
+    if (bv >= 2) return [1, 198 / 255, 109 / 255];
+    let [r, g, b] = [0.0, 0.0, 0.0];
 
     if (-0.4 <= bv && bv < 0.0) {
       let t = (bv + 0.4) / (0.0 + 0.4);
@@ -582,7 +572,6 @@ class Drawer {
       let t = (bv - 0.0) / (0.4 - 0.0);
       r = 0.83 + 0.17 * t;
     } else if (0.4 <= bv && bv < 2.1) {
-      let t = (bv - 0.4) / (2.1 - 0.4);
       r = 1.0;
     }
 
@@ -601,7 +590,6 @@ class Drawer {
     }
 
     if (-0.4 <= bv && bv < 0.4) {
-      let t = (bv + 0.4) / (0.4 + 0.4);
       b = 1.0;
     } else if (0.4 <= bv && bv < 1.5) {
       let t = (bv - 0.4) / (1.5 - 0.4);
@@ -709,9 +697,9 @@ class Drawer {
   }
 
   writeDebug() {
-    this.document.querySelector(".dbg").innerHTML = JSON.stringify(
-      this.obs.GetDebug()
-    ).replaceAll(",", ",\n");
+    this.document.querySelector(".dbg").innerHTML =
+      JSON.stringify(this.obs.GetDebug()).replaceAll(",", ",\n") +
+      this.selectedStars;
 
     /*for (let i = 0; i < this.dots.length; i++) {
       const [alt, az] = this.obs.RaDecToAltAz(...this.dots[i]);
