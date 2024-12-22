@@ -34,8 +34,10 @@ class Drawer {
 
     this.document = document;
 
-    this.width = width * window.devicePixelRatio;
-    this.height = height * window.devicePixelRatio;
+    this.width = width; // * window.devicePixelRatio;
+    this.height = height; // * window.devicePixelRatio;
+
+    this.scale = this.height / 1000;
 
     this.svg = this.getNode("svg", { width: this.width, height: this.height });
     div.appendChild(this.svg);
@@ -257,7 +259,7 @@ class Drawer {
       x /= this.width;
       y -= this.height / 2;
       y /= -this.height;
-      return [x * window.devicePixelRatio, y * window.devicePixelRatio];
+      return [x, y];
     };
 
     const getXYFromEvent = (event, canvas = this.svg) => {
@@ -533,7 +535,7 @@ class Drawer {
     }
     const [canX, canY] = this.XYtoCanvas(x, y);
     this.addNode("circle", {
-      r: r,
+      r: r * this.scale,
       cx: canX,
       cy: canY,
       fill: this.starColor(brightness, star.ColorIndex),
