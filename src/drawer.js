@@ -51,6 +51,67 @@ class Drawer {
     this.draw();
   }
 
+<<<<<<< Updated upstream
+=======
+  getNode(n, v) {
+    n = this.document.createElementNS("http://www.w3.org/2000/svg", n);
+    for (var p in v)
+      n.setAttributeNS(
+        null,
+        p.replace(/[A-Z]/g, function (m, p, o, s) {
+          return "-" + m.toLowerCase();
+        }),
+        v[p]
+      );
+    return n;
+  }
+
+  addNode(n, v) {
+    let node = this.getNode(n, v);
+    this.svg.appendChild(node);
+  }
+
+  drawPolyline(points, color = "#808080") {
+    let set = [];
+    for (let i = 0; i < points.length; i++) {
+      if (points[i][0] != null && points[i][1] != null) {
+        let [canX, canY] = this.XYtoCanvas(...points[i]);
+        if (Math.sqrt((canX - 1500) ** 2 + (canY - 1500) ** 2) > 1500) {
+          // Wrong math
+          canX -= 1500;
+          canY -= 1500;
+          canX *= 1500 / Math.sqrt(canX ** 2 + canY ** 2);
+          canY *= 1500 / Math.sqrt(canX ** 2 + canY ** 2);
+          canX += 1500;
+          canY += 1500;
+        } else {
+          set.push(canX, canY);
+        }
+      } else {
+        if (set.length > 0) {
+          this.addNode("polyline", {
+            points: set,
+            stroke: color,
+            fill: "none",
+          });
+        }
+        set = [];
+      }
+    }
+    if (set.length > 0) {
+      this.addNode("polyline", {
+        points: set,
+        stroke: color,
+        fill: "none",
+      });
+    }
+  }
+
+  XYtoCanvas(x, y) {
+    return [this.width / 2 + x * this.width, this.height / 2 - y * this.height];
+  }
+
+>>>>>>> Stashed changes
   constellationSelection(div = this.constellationSelectionDiv) {
     this.constellationSelectionDiv = div;
     const select = this.document.createElement("select");
@@ -425,12 +486,24 @@ class Drawer {
         brightness = Math.min(brightness, 5);
       }
     }
+<<<<<<< Updated upstream
     const canX = this.width / 2 + x * this.width;
     const canY = this.height / 2 - y * this.height;
     this.ctx.fillStyle = this.starColor(brightness, star.ColorIndex);
     this.ctx.beginPath();
     this.ctx.arc(canX, canY, r, 0, 2 * Math.PI);
     this.ctx.fill();
+=======
+    const [canX, canY] = this.XYtoCanvas(x, y);
+    if (Math.sqrt((canX - 1500) ** 2 + (canY - 1500) ** 2) < 1500) {
+      this.addNode("circle", {
+        r: r,
+        cx: canX,
+        cy: canY,
+        fill: this.starColor(brightness, star.ColorIndex),
+      });
+    }
+>>>>>>> Stashed changes
   }
 
   starColor(brightness, colorIndex) {
@@ -615,9 +688,24 @@ class Drawer {
   }
 
   draw() {
+<<<<<<< Updated upstream
     this.ctx.clearRect(0, 0, this.width, this.height);
     this.ctx.fillStyle = this.colors.sky; //"#0a0026";
     this.ctx.fillRect(0, 0, this.width, this.height);
+=======
+    this.updateMaximumMag();
+    this.svg.textContent = ""; // vs innerHTML test performance
+
+    for (let i = hvezdy.length - 1; i >= 0; i--) {
+      if (
+        hvezdy[i].Mag < 8 &&
+        false &&
+        this.obs.CheckVisibility(hvezdy[i].RA, hvezdy[i].Dec) // Fix!!
+      ) {
+        this.drawStar(hvezdy[i]);
+      }
+    }
+>>>>>>> Stashed changes
     if (this.AltAzLines) this.drawAltAzLines();
     if (this.EqLines) this.drawLines(JSONEQLines.lines, this.colors.EQLines);
     if (this.ConstellationsLines) this.drawConstellationsLines();
@@ -631,6 +719,7 @@ class Drawer {
       });
     if (this.Debug) this.writeDebug();
     else this.document.querySelector(".dbg").innerHTML = "";
+<<<<<<< Updated upstream
 
     this.drawConstellation(constellations[61]);
 
@@ -642,5 +731,13 @@ class Drawer {
         this.drawStar(hvezda);
       }
     });
+=======
+    /*this.addNode("circle", {
+      r: 1500,
+      cx: 1500,
+      cy: 1500,
+      fill: "#000000",
+    });*/
+>>>>>>> Stashed changes
   }
 }
