@@ -273,7 +273,8 @@ class Drawer {
       let [x, y] = getXYFromEvent(e);
       let [alt, az] = this.obs.XYToAltAz(x, y);
       let [RA, DEC] = this.obs.AltAzToRaDec(alt, az);
-      console.log(this.findVisibleStars(RA, DEC));
+      this.selectedStar = this.findVisibleStars(RA, DEC);
+      console.log(this.selectedStar);
       /*console.log(alt, az);
       console.log("RA: ", RadToDeg(RA) / 15, "Dec: ", RadToDeg(DEC));
       console.log(RadToDeg(this.obs.CalculateDistanceRaDec(RA, DEC)));*/
@@ -692,8 +693,8 @@ class Drawer {
 
   findVisibleStars(ra, dec, r = this.obs.fov / 100) {
     let foundStars = [];
-    for (let i = hvezdy.length - 1; i >= 0; i--) {
-      if (hvezdy[i].Mag > this.maximumMag) continue;
+    for (let i = 0; i < hvezdy.length; i++) {
+      if (hvezdy[i].Mag > this.maximumMag) break;
       if (
         this.obs.CalculateDistanceRaDec(
           ra,
