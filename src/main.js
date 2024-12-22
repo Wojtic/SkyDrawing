@@ -1,11 +1,3 @@
-<<<<<<< Updated upstream
-const size = 3000; // Math.min(document.body.clientHeight, document.body.clientWidth);
-const dr = new Drawer(
-  document,
-  document.getElementsByClassName("cnvs")[0],
-  size,
-  size
-=======
 const size = Math.min(document.body.clientHeight, document.body.clientWidth);
 
 const settings = {
@@ -43,7 +35,6 @@ const dr = new Drawer(
   document,
   document.getElementsByClassName("cnvs")[0],
   laserSettings
->>>>>>> Stashed changes
 );
 dr.constellationSelection(document.getElementsByClassName("cnstShow")[0]);
 dr.projectionSelection(document.getElementsByClassName("projSlct")[0]);
