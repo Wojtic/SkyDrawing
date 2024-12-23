@@ -21,7 +21,7 @@ def relevantInfo(row, type, id):
         "Notes": row["NED notes"]
     }
 
-with open("./../NGC.csv", encoding='utf-8') as csvf:
+with open("./../raw/NGC.csv", encoding='utf-8') as csvf:
     csvReader = csv.DictReader(csvf, delimiter=";")
     line = 0
     for rows in csvReader:
@@ -30,7 +30,7 @@ with open("./../NGC.csv", encoding='utf-8') as csvf:
         if rows["M"]:
             M.append(relevantInfo(rows, "M", rows["M"]))
         if rows["Name"][:2] == "IC":
-            NGC.append(relevantInfo(rows, "IC", rows["Name"].split(" ")[0][2:]))
+            IC.append(relevantInfo(rows, "IC", rows["Name"].split(" ")[0][2:]))
         if rows["Name"][:3] == "NGC":
             NGC.append(relevantInfo(rows, "NGC", rows["Name"].split(" ")[0][3:]))
 

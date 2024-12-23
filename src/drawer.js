@@ -22,6 +22,9 @@ class Drawer {
         EQLines: "#F06F2B",
         constellationLines: "#E0F02B",
         constellationBoundaries: "#579E9B",
+        messier: "#fa05f2",
+        NGC: "#eaff00",
+        IC: "#00ff40",
       },
     }
   ) {
@@ -200,6 +203,9 @@ class Drawer {
       [this.Constellations, "Boundaries"],
       [this.ConstellationsLines, "Constellation Lines"],
       [this.StarColors, "Star colors"],
+      [this.Messier, "Messier objects"],
+      [this.NGC, "NGC objects"],
+      [this.IC, "IC objects"],
       [this.Czech, "Czech Names"],
       [this.Debug, "Show Debug"],
     ];
@@ -221,7 +227,10 @@ class Drawer {
       this.StarColors = this.document.getElementsByName(
         btnsNames[5]
       )[0].checked;
-      let newCzech = this.document.getElementsByName(btnsNames[6])[0].checked;
+      this.Messier = this.document.getElementsByName(btnsNames[6])[0].checked;
+      this.NGC = this.document.getElementsByName(btnsNames[7])[0].checked;
+      this.IC = this.document.getElementsByName(btnsNames[8])[0].checked;
+      let newCzech = this.document.getElementsByName(btnsNames[9])[0].checked;
       if (newCzech != this.Czech) {
         this.Czech = newCzech;
         if (this.constellationSelectionDiv) {
@@ -233,7 +242,7 @@ class Drawer {
           this.projectionSelection();
         }
       }
-      this.Debug = this.document.getElementsByName(btnsNames[7])[0].checked;
+      this.Debug = this.document.getElementsByName(btnsNames[10])[0].checked;
       this.draw();
     };
 
@@ -691,6 +700,38 @@ class Drawer {
     }
   }
 
+  drawDSOs(set, color) {
+    set.forEach((object) => {
+      const [x, y] = this.obs.RaDecToXY(object.RA, object.Dec);
+      if (x == null || y == null) return;
+      if (!(x > -0.5 && x < 0.5 && y > -0.5 && y < 0.5)) return;
+
+      const [canX, canY] = this.XYtoCanvas(x, y);
+      if (canX < 0 || canY < 0) return;
+      this.addNode("circle", {
+        r: 7 * this.scale,
+        cx: canX,
+        cy: canY,
+        strokeWidth: "2",
+        strokeDasharray: "4",
+        stroke: color,
+        fill: "none",
+      });
+    });
+  }
+
+  drawMessier() {
+    this.drawDSOs(M, this.colors.messier);
+  }
+
+  drawNGC() {
+    this.drawDSOs(NGC, this.colors.NGC);
+  }
+
+  drawIC() {
+    this.drawDSOs(IC, this.colors.IC);
+  }
+
   showConstellation(constellation) {
     this.obs.ChangeSettings({ lat: Math.PI / 2 - 0.005, long: 0 }); // Change to Math.PI/2 when 0 divison bug is fixed
     const [alt, az] = this.obs.RaDecToAltAz(...constellation.center);
@@ -765,6 +806,9 @@ class Drawer {
       this.ConstellationsToDraw.forEach((constellation) => {
         this.drawConstellation(constellation);
       });
+    if (this.Messier) this.drawMessier();
+    if (this.NGC) this.drawNGC();
+    if (this.IC) this.drawIC();
     if (this.Debug) this.writeDebug();
     else this.document.querySelector(".dbg").innerHTML = "";
   }
