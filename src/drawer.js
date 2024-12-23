@@ -37,7 +37,9 @@ class Drawer {
     this.width = width; // * window.devicePixelRatio;
     this.height = height; // * window.devicePixelRatio;
 
-    this.scale = this.height / 1000;
+    this.size = Math.max(this.width, this.height);
+
+    this.scale = this.size / 1000;
 
     this.svg = this.getNode("svg", { width: this.width, height: this.height });
     div.appendChild(this.svg);
@@ -128,7 +130,17 @@ class Drawer {
   }
 
   XYtoCanvas(x, y) {
-    return [this.width / 2 + x * this.width, this.height / 2 - y * this.height];
+    if (this.width == this.height)
+      return [this.size / 2 + x * this.size, this.size / 2 - y * this.size];
+    if (this.width > this.height)
+      return [
+        this.size / 2 + x * this.size,
+        (this.size - this.height) / 2 - y * this.size,
+      ];
+    return [
+      (this.size - this.width) / 2 + x * this.size,
+      this.size / 2 - y * this.size,
+    ];
   }
 
   constellationSelection(div = this.constellationSelectionDiv) {
@@ -255,22 +267,31 @@ class Drawer {
 
       let x = touch.pageX - rect.left;
       let y = touch.pageY - rect.top;
-      x -= this.width / 2;
-      x /= this.width;
-      y -= this.height / 2;
-      y /= -this.height;
-      return [x, y];
+      return canXYtoXY(x, y);
     };
 
     const getXYFromEvent = (event, canvas = this.svg) => {
       const rect = canvas.getBoundingClientRect();
       let x = event.clientX - rect.left;
       let y = event.clientY - rect.top;
-      x -= this.width / 2;
-      x /= this.width;
-      y -= this.height / 2;
-      y /= -this.height;
-      return [x, y];
+      return canXYtoXY(x, y);
+    };
+
+    const canXYtoXY = (x, y) => {
+      if (this.width == this.height)
+        return [
+          (x - this.size / 2) / this.size,
+          (this.size / 2 - y) / this.size,
+        ];
+      if (this.width > this.height)
+        return [
+          (x - this.width / 2) / this.width,
+          ((this.size - this.height) / 2 - y) / this.size,
+        ];
+      return [
+        (x - (this.size - this.width) / 2) / this.size,
+        (this.size / 2 - y) / this.size,
+      ];
     };
 
     this.svg.onclick = (e) => {
@@ -534,6 +555,7 @@ class Drawer {
       }
     }
     const [canX, canY] = this.XYtoCanvas(x, y);
+    if (canX < 0 || canY < 0) return;
     this.addNode("circle", {
       r: r * this.scale,
       cx: canX,
@@ -703,22 +725,21 @@ class Drawer {
       JSON.stringify(this.obs.GetDebug()).replaceAll(",", ",\n") +
       this.selectedStars;
 
-    /*for (let i = 0; i < this.dots.length; i++) {
+    for (let i = 0; i < this.dots.length; i++) {
       const [alt, az] = this.obs.RaDecToAltAz(...this.dots[i]);
       const [x, y] = this.obs.AltAzToXY(alt, az);
       if (x == null || y == null) continue;
       if (!(x > -0.5 && x < 0.5 && y > -0.5 && y < 0.5)) continue;
 
-      const canX = this.width / 2 + x * this.width;
-      const canY = this.height / 2 - y * this.height;
-      this.findVisibleStars(...this.dots[i]);
+      const [canX, canY] = this.XYtoCanvas(x, y);
+      //this.findVisibleStars(...this.dots[i]);
       this.addNode("circle", {
         r: 5,
         cx: canX,
         cy: canY,
         fill: "#FF0000",
       });
-    }*/
+    }
   }
 
   draw() {
