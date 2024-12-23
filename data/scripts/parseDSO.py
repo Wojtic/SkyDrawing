@@ -34,9 +34,38 @@ with open("./../raw/NGC.csv", encoding='utf-8') as csvf:
         if rows["Name"][:3] == "NGC":
             NGC.append(relevantInfo(rows, "NGC", rows["Name"].split(" ")[0][3:]))
 
+
 Mjs = "const M = ["
+M.append({
+        "M": "040",
+        "RA": 12.3701472,
+        "Dec": 58.08294,
+        "Type": "",
+        "Const": "UMa",
+        "Names": "",
+        "Notes": ""
+    })
+M.append({
+        "M": "045",
+        "RA": 3 + 47/60,
+        "Dec": 24 + 7 / 60,
+        "Type": "",
+        "Const": "Tau",
+        "Names": "Pleiades",
+        "Notes": ""
+    })
+M.append({
+        "M": "102",
+        "RA": 15 + 6/60+29.5/3600,
+        "Dec": 55+45/60+48/3600,
+        "Type": "",
+        "Const": "Dra",
+        "Names": "Spindle Galaxy",
+        "Notes": ""
+    })
 for obj in M:
     Mjs += json.dumps(obj) + ","
+
 
 with open("./../M.js", 'w', encoding='utf-8') as jsonf:
     jsonf.write(Mjs[:-1]+ "];")
