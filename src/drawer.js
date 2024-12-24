@@ -713,7 +713,7 @@ class Drawer {
         cx: canX,
         cy: canY,
         strokeWidth: "2",
-        strokeDasharray: "4",
+        strokeDasharray: 4 * this.scale,
         stroke: color,
         fill: "none",
       });
