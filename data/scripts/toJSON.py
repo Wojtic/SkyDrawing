@@ -3,7 +3,7 @@ import json
 
 def make_json(csvFilePath, jsonFilePath):
     
-    data = "const hvezdy = ["
+    data = "const stars = ["
     
     with open(csvFilePath, encoding='utf-8') as csvf:
         csvReader = csv.DictReader(csvf)

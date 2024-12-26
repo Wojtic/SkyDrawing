@@ -1,20 +1,20 @@
 function getStarByStarID(id) {
-  for (let I = 0; I < hvezdy.length; I++) {
-    const hvezda = hvezdy[I];
+  for (let I = 0; I < stars.length; I++) {
+    const hvezda = stars[I];
     if (hvezda.StarID == id) return hvezda;
   }
 }
 
 function getStarByName(name) {
-  for (let I = 0; I < hvezdy.length; I++) {
-    const hvezda = hvezdy[I];
+  for (let I = 0; I < stars.length; I++) {
+    const hvezda = stars[I];
     if (hvezda.ProperName == name) return hvezda;
   }
 }
 
 function getStarByBayer(bayer) {
-  for (let I = 0; I < hvezdy.length; I++) {
-    const hvezda = hvezdy[I];
+  for (let I = 0; I < stars.length; I++) {
+    const hvezda = stars[I];
     if (hvezda.BayerFlamsteed.trim() == bayer) return hvezda;
   }
 }

@@ -1,3 +1,10 @@
+let dataset = {};
+dataset.M = M;
+dataset.NGC = NGC;
+dataset.IC = IC;
+dataset.stars = stars;
+dataset.constellations = constellations;
+
 class Drawer {
   constructor(
     document,
@@ -16,6 +23,7 @@ class Drawer {
       projection = "stereographic",
       date = new Date(),
       maximumMag,
+      data = dataset,
       colors = {
         sky: "#070E17",
         altAzLines: "#2BF0E6",
@@ -48,6 +56,7 @@ class Drawer {
     div.appendChild(this.svg);
 
     this.colors = colors;
+    this.data = data;
 
     this.svg.style.backgroundColor = this.colors.sky;
 
@@ -151,7 +160,7 @@ class Drawer {
     const select = this.document.createElement("select");
     const btn = this.document.createElement("button");
     btn.innerHTML = "Show";
-    constellations.forEach((constellation) => {
+    this.data.constellations.forEach((constellation) => {
       let opt = this.document.createElement("option");
       opt.value = this.Czech ? constellation.czech : constellation.latin; // Change to name
       opt.innerHTML = this.Czech ? constellation.czech : constellation.latin; // Change to name
@@ -161,7 +170,7 @@ class Drawer {
     div.appendChild(btn);
 
     btn.onclick = (e) => {
-      this.showConstellation(constellations[select.selectedIndex]);
+      this.showConstellation(this.data.constellations[select.selectedIndex]);
     };
   }
 
@@ -663,7 +672,7 @@ class Drawer {
   }
 
   drawConstellationsLines() {
-    constellations.forEach((constellation) => {
+    this.data.constellations.forEach((constellation) => {
       if (constellation.lines != undefined) {
         this.drawConstellationLines(constellation.lines);
       }
@@ -721,15 +730,15 @@ class Drawer {
   }
 
   drawMessier() {
-    this.drawDSOs(M, this.colors.messier);
+    this.drawDSOs(this.data.M, this.colors.messier);
   }
 
   drawNGC() {
-    this.drawDSOs(NGC, this.colors.NGC);
+    this.drawDSOs(this.data.NGC, this.colors.NGC);
   }
 
   drawIC() {
-    this.drawDSOs(IC, this.colors.IC);
+    this.drawDSOs(this.data.IC, this.colors.IC);
   }
 
   showConstellation(constellation) {
@@ -746,17 +755,17 @@ class Drawer {
 
   findVisibleStars(ra, dec, r = this.obs.fov / 100) {
     let foundStars = [];
-    for (let i = 0; i < hvezdy.length; i++) {
-      if (hvezdy[i].Mag > this.maximumMag) break;
+    for (let i = 0; i < this.data.stars.length; i++) {
+      if (this.data.stars[i].Mag > this.maximumMag) break;
       if (
         this.obs.CalculateDistanceRaDec(
           ra,
           dec,
-          degToRad(hvezdy[i].RA * 15),
-          degToRad(hvezdy[i].Dec)
+          degToRad(this.data.stars[i].RA * 15),
+          degToRad(this.data.stars[i].Dec)
         ) < r
       )
-        foundStars.push(hvezdy[i]);
+        foundStars.push(this.data.stars[i]);
     }
     return foundStars;
   }
@@ -787,19 +796,19 @@ class Drawer {
     this.updateMaximumMag();
     this.svg.textContent = ""; // vs innerHTML test performance
 
-    for (let i = hvezdy.length - 1; i >= 0; i--) {
+    for (let i = this.data.stars.length - 1; i >= 0; i--) {
       if (
-        hvezdy[i].Mag < this.maximumMag &&
-        this.obs.CheckVisibility(hvezdy[i].RA, hvezdy[i].Dec) // Fix!!
+        this.data.stars[i].Mag < this.maximumMag &&
+        this.obs.CheckVisibility(this.data.stars[i].RA, this.data.stars[i].Dec) // Fix!!
       ) {
-        this.drawStar(hvezdy[i]);
+        this.drawStar(this.data.stars[i]);
       }
     }
     if (this.AltAzLines) this.drawAltAzLines();
     if (this.EqLines) this.drawLines(JSONEQLines.lines, this.colors.EQLines);
     if (this.ConstellationsLines) this.drawConstellationsLines();
     if (this.Constellations)
-      constellations.forEach((constellation) => {
+      this.data.constellations.forEach((constellation) => {
         this.drawConstellation(constellation);
       });
     else
