@@ -30,6 +30,8 @@ class Observer {
     projection = this.projection,
   }) {
     this.alt = alt; //-pi/2 to pi/2
+    this.cosTranslatedAlt = Math.cos(this.alt + Math.PI / 2);
+    this.sinTranslatedAlt = Math.sin(this.alt + Math.PI / 2);
     this.az = az; //0 to 2pi
     this.fov = fov;
 

@@ -32,13 +32,12 @@ Observer.prototype.PerspectiveXYToAltAz = function (x, y) {
 
 Observer.prototype.StereographicAltAzToXY = function (alt, az) {
   // Inefficient (everything is)
-  const S = this.AltAzToVector(alt, az)
-    .multiply(-1)
-    .rotateAround(this.Odir, -this.az + Math.PI / 2)
-    .rotateAround(
-      new Vector(0, 0, -1).cross(this.Odir),
-      Math.PI / 2 - this.alt
-    );
+  let S = this.AltAzToVector(alt, -az + this.az + Math.PI / 2);
+  S = new Vector(
+    S.x,
+    S.y * this.cosTranslatedAlt + S.z * this.sinTranslatedAlt,
+    -S.y * this.sinTranslatedAlt + S.z * this.cosTranslatedAlt
+  );
   const x = S.x / (1 - S.z);
   const y = S.y / (1 - S.z);
 
