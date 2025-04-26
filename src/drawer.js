@@ -131,21 +131,28 @@ class Drawer {
 
     this.ctx.fill();
   }
-  addNode(n, v) {
-    if (n == "circle") {
-      /*this.addNode("circle", {
-        r: 7 * this.scale,
-        cx: canX,
-        cy: canY,
-        strokeWidth: "2",
-        strokeDasharray: 4 * this.scale,
-        stroke: color,
-        fill: "none",
-      });*/
+
+  dashedCircle(cx, cy, r, color, width, dasharray) {
+    this.ctx.strokeStyle = color;
+    this.ctx.lineWidth = width;
+    this.ctx.setLineDash([dasharray, dasharray]);
+
+    this.ctx.beginPath();
+    this.ctx.arc(cx, cy, r, 0, 2 * Math.PI);
+
+    this.ctx.stroke();
+    this.ctx.setLineDash([]);
+  }
+
+  singlePolyline(points, stroke) {
+    this.ctx.strokeStyle = stroke;
+    this.ctx.lineWidth = 1;
+    this.ctx.beginPath();
+    this.ctx.moveTo(points[0][0], points[0][1]);
+    for (let i = 1; i < points.length; i++) {
+      this.ctx.lineTo(points[i][0], points[i][1]);
     }
-    return;
-    let node = this.getNode(n, v);
-    this.svg.appendChild(node);
+    this.ctx.stroke();
   }
 
   drawPolyline(points, color = "#808080") {
@@ -154,23 +161,11 @@ class Drawer {
       if (points[i][0] != null && points[i][1] != null) {
         set.push(this.XYtoCanvas(...points[i]));
       } else {
-        if (set.length > 0) {
-          this.addNode("polyline", {
-            points: set,
-            stroke: color,
-            fill: "none",
-          });
-        }
+        if (set.length > 0) this.singlePolyline(set, color);
         set = [];
       }
     }
-    if (set.length > 0) {
-      this.addNode("polyline", {
-        points: set,
-        stroke: color,
-        fill: "none",
-      });
-    }
+    if (set.length > 0) this.singlePolyline(set, color);
   }
 
   XYtoCanvas(x, y) {
@@ -477,15 +472,12 @@ class Drawer {
     if (x1 == null || y1 == null || x2 == null || y2 == null) return;
     const [canX1, canY1] = this.XYtoCanvas(x1, y1);
     const [canX2, canY2] = this.XYtoCanvas(x2, y2);
-    /*this.svg.appendChild(
-      this.getNode("line", {
-        x1: canX1,
-        y1: canY1,
-        x2: canX2,
-        y2: canY2,
-        stroke: this.lastSetColor,
-      })
-    );*/
+    this.ctx.strokeStyle = this.lastSetColor;
+    this.ctx.lineWidth = 1;
+    this.ctx.beginPath();
+    this.ctx.moveTo(canX1, canY1);
+    this.ctx.lineTo(canX2, canY2);
+    this.ctx.stroke();
   }
 
   drawLineRaDec(x1, y1, x2, y2) {
@@ -571,8 +563,8 @@ class Drawer {
         if (newX !== null && newY !== null) points += canX + "," + canY + " ";
       }
     }
-    if (returnPoints == null)
-      this.addNode("polyline", { points: points, stroke: color, fill: "none" });
+    if (returnPoints == null) console.warn("Deprecated!");
+    //this.addNode("polyline", { points: points, stroke: color, fill: "none" });
   }
 
   drawStar(star) {
@@ -749,15 +741,7 @@ class Drawer {
 
       const [canX, canY] = this.XYtoCanvas(x, y);
       if (canX < 0 || canY < 0) return;
-      this.addNode("circle", {
-        r: 7 * this.scale,
-        cx: canX,
-        cy: canY,
-        strokeWidth: "2",
-        strokeDasharray: 4 * this.scale,
-        stroke: color,
-        fill: "none",
-      });
+      this.dashedCircle(canX, canY, 7 * this.scale, color, 2, 4 * this.scale);
     });
   }
 
@@ -816,12 +800,6 @@ class Drawer {
       const [canX, canY] = this.XYtoCanvas(x, y);
       //this.findVisibleStars(...this.dots[i]);
       this.circle(canX, canY, 5, "#FF0000");
-      this.addNode("circle", {
-        r: 5,
-        cx: canX,
-        cy: canY,
-        fill: "#FF0000",
-      });
     }
   }
 
