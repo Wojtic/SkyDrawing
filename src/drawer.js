@@ -45,20 +45,32 @@ class Drawer {
 
     this.document = document;
 
-    this.width = width; // * window.devicePixelRatio;
-    this.height = height; // * window.devicePixelRatio;
+    //this.width = width; // * window.devicePixelRatio;
+    //this.height = height; // * window.devicePixelRatio;
 
+    //this.svg = this.getNode("svg", { width: this.width, height: this.height });
+    this.canvas = document.createElement("canvas");
+    this.canvas.id = "mainCan";
+    this.canvas.width = width * window.devicePixelRatio;
+    this.canvas.height = height * window.devicePixelRatio;
+    this.canvas.style.height = height + "px";
+    this.canvas.style.width = width + "px";
+
+    div.appendChild(this.canvas);
+
+    this.ctx = this.canvas.getContext("2d");
+
+    this.width = width * window.devicePixelRatio;
+    this.height = height * window.devicePixelRatio;
     this.size = Math.max(this.width, this.height);
-
     this.scale = this.size / 1000;
 
-    this.svg = this.getNode("svg", { width: this.width, height: this.height });
-    div.appendChild(this.svg);
+    //div.appendChild(this.svg);
 
     this.colors = colors;
     this.data = data;
 
-    this.svg.style.backgroundColor = this.colors.sky;
+    //this.svg.style.backgroundColor = this.colors.sky;
 
     this.obs = new Observer(
       altitude,
@@ -111,7 +123,27 @@ class Drawer {
     return n;
   }
 
+  circle(cx, cy, r, fill) {
+    this.ctx.fillStyle = fill;
+
+    this.ctx.beginPath();
+    this.ctx.arc(cx, cy, r, 0, 2 * Math.PI);
+
+    this.ctx.fill();
+  }
   addNode(n, v) {
+    if (n == "circle") {
+      /*this.addNode("circle", {
+        r: 7 * this.scale,
+        cx: canX,
+        cy: canY,
+        strokeWidth: "2",
+        strokeDasharray: 4 * this.scale,
+        stroke: color,
+        fill: "none",
+      });*/
+    }
+    return;
     let node = this.getNode(n, v);
     this.svg.appendChild(node);
   }
@@ -275,7 +307,7 @@ class Drawer {
   }
 
   bindInput() {
-    const getXYFromTouch = (event, canvas = this.svg) => {
+    const getXYFromTouch = (event, canvas = this.canvas) => {
       const rect = canvas.getBoundingClientRect();
       /*event =
           typeof event.originalEvent === "undefined"
@@ -288,7 +320,7 @@ class Drawer {
       return canXYtoXY(x, y);
     };
 
-    const getXYFromEvent = (event, canvas = this.svg) => {
+    const getXYFromEvent = (event, canvas = this.canvas) => {
       const rect = canvas.getBoundingClientRect();
       let x = event.clientX - rect.left;
       let y = event.clientY - rect.top;
@@ -312,7 +344,7 @@ class Drawer {
       ];
     };
 
-    this.svg.onclick = (e) => {
+    this.canvas.onclick = (e) => {
       let [x, y] = getXYFromEvent(e);
       let [alt, az] = this.obs.XYToAltAz(x, y);
       let [RA, DEC] = this.obs.AltAzToRaDec(alt, az);
@@ -342,13 +374,13 @@ class Drawer {
       );
     };
 
-    this.svg.onwheel = (e) => {
+    this.canvas.onwheel = (e) => {
       e.preventDefault();
       zoom(e.deltaY);
       this.draw();
     };
 
-    this.svg.ontouchstart = (e) => {
+    this.canvas.ontouchstart = (e) => {
       e.preventDefault();
       if (e.touches.length === 2) {
         this.pinching = true;
@@ -357,12 +389,12 @@ class Drawer {
       [this.lastX, this.lastY] = getXYFromTouch(e);
     };
 
-    this.svg.onmousedown = (e) => {
+    this.canvas.onmousedown = (e) => {
       e.preventDefault();
       [this.lastX, this.lastY] = getXYFromEvent(e);
     };
 
-    this.svg.ontouchmove = (e) => {
+    this.canvas.ontouchmove = (e) => {
       e.preventDefault();
       if (this.lastX === null || this.lastY === null) return;
       if (this.pinching) {
@@ -389,7 +421,7 @@ class Drawer {
       [this.lastX, this.lastY] = [newX, newY];
     };
 
-    this.svg.onmousemove = (e) => {
+    this.canvas.onmousemove = (e) => {
       e.preventDefault();
       if (this.lastX === null || this.lastY === null) return;
       let [newX, newY] = getXYFromEvent(e);
@@ -403,10 +435,10 @@ class Drawer {
       [this.lastX, this.lastY] = [newX, newY];
     };
 
-    this.svg.onmouseup =
-      this.svg.onmouseleave =
-      this.svg.ontouchend =
-      this.svg.ontouchcancel =
+    this.canvas.onmouseup =
+      this.canvas.onmouseleave =
+      this.canvas.ontouchend =
+      this.canvas.ontouchcancel =
         (e) => {
           e.preventDefault();
           [this.lastX, this.lastY] = [null, null];
@@ -445,7 +477,7 @@ class Drawer {
     if (x1 == null || y1 == null || x2 == null || y2 == null) return;
     const [canX1, canY1] = this.XYtoCanvas(x1, y1);
     const [canX2, canY2] = this.XYtoCanvas(x2, y2);
-    this.svg.appendChild(
+    /*this.svg.appendChild(
       this.getNode("line", {
         x1: canX1,
         y1: canY1,
@@ -453,7 +485,7 @@ class Drawer {
         y2: canY2,
         stroke: this.lastSetColor,
       })
-    );
+    );*/
   }
 
   drawLineRaDec(x1, y1, x2, y2) {
@@ -574,12 +606,12 @@ class Drawer {
     }
     const [canX, canY] = this.XYtoCanvas(x, y);
     if (canX < 0 || canY < 0) return;
-    this.addNode("circle", {
-      r: r * this.scale,
-      cx: canX,
-      cy: canY,
-      fill: this.starColor(brightness, star.ColorIndex),
-    });
+    this.circle(
+      canX,
+      canY,
+      r * this.scale,
+      this.starColor(brightness, star.ColorIndex)
+    );
   }
 
   starColor(brightness, colorIndex) {
@@ -783,6 +815,7 @@ class Drawer {
 
       const [canX, canY] = this.XYtoCanvas(x, y);
       //this.findVisibleStars(...this.dots[i]);
+      this.circle(canX, canY, 5, "#FF0000");
       this.addNode("circle", {
         r: 5,
         cx: canX,
@@ -794,7 +827,10 @@ class Drawer {
 
   draw() {
     this.updateMaximumMag();
-    this.svg.textContent = ""; // vs innerHTML test performance
+    //this.svg.textContent = ""; // vs innerHTML test performance
+    this.ctx.clearRect(0, 0, this.width, this.height);
+    this.ctx.fillStyle = this.colors.sky; //"#0a0026";
+    this.ctx.fillRect(0, 0, this.width, this.height);
 
     for (let i = this.data.stars.length - 1; i >= 0; i--) {
       if (
