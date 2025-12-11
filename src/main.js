@@ -30,10 +30,33 @@ const laserSettings = {
   },
 };
 
+const cutterSettings = {
+  width: 1000,
+  height: 1000,
+  fov: 90,
+  altitude: 90,
+  azimuth: 0,
+  latitude: 90,
+  longitude: 0,
+  horizon: false,
+  starColors: false,
+  boundaries: false,
+  maximumMag: 10,
+  projection: "perspective",
+  colors: {
+    sky: "#FFFFFF",
+    altAzLines: "#2BF0E6",
+    EQLines: "#F06F2B",
+    constellationLines: "#E0F02B",
+    constellationBoundaries: "#000000",
+    stars: "#000000",
+  },
+};
+
 const dr = new Drawer(
   document,
   document.getElementsByClassName("cnvs")[0],
-  settings
+  cutterSettings
 );
 dr.constellationSelection(document.getElementsByClassName("cnstShow")[0]);
 dr.projectionSelection(document.getElementsByClassName("projSlct")[0]);

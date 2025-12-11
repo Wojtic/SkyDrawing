@@ -126,7 +126,7 @@ class Drawer {
           this.addNode("polyline", {
             points: set,
             stroke: color,
-            fill: "none",
+            fill: "black",
           });
         }
         set = [];
@@ -136,7 +136,7 @@ class Drawer {
       this.addNode("polyline", {
         points: set,
         stroke: color,
-        fill: "none",
+        fill: "black",
       });
     }
   }
@@ -747,7 +747,7 @@ class Drawer {
     this.obs.ChangeSettings({
       alt: alt,
       az: az,
-      fov: constellation.maxAngDist * 2,
+      fov: degToRad(90) /*constellation.maxAngDist * 2,*/,
     });
     if (!this.Constellations) this.ConstellationsToDraw = [constellation];
     this.draw();
@@ -796,6 +796,7 @@ class Drawer {
     this.updateMaximumMag();
     this.svg.textContent = ""; // vs innerHTML test performance
 
+    /*
     for (let i = this.data.stars.length - 1; i >= 0; i--) {
       if (
         this.data.stars[i].Mag < this.maximumMag &&
@@ -803,7 +804,7 @@ class Drawer {
       ) {
         this.drawStar(this.data.stars[i]);
       }
-    }
+    }*/
     if (this.AltAzLines) this.drawAltAzLines();
     if (this.EqLines) this.drawLines(JSONEQLines.lines, this.colors.EQLines);
     if (this.ConstellationsLines) this.drawConstellationsLines();
